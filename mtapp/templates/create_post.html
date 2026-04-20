@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>MiniTalk Feed</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+        }
+
+        /* 🔷 顶部导航栏 */
+        .navbar {
+            background-color: #333;
+            color: white;
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            margin-left: 20px;
+            font-size: 16px;
+        }
+
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+
+        /* 🔷 页面容器 */
+        .container {
+            width: 600px;
+            margin: 60px auto;
+        }
+
+        /* 🔷 发帖框 */
+        .post-box {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 100px;
+            border-radius: 10px;
+            border: 1px solid #ccc;
+            padding: 12px;
+            font-size: 14px;
+            resize: none;
+            box-sizing: border-box;
+        }
+
+        .btn {
+            margin-top: 12px;
+            padding: 10px 20px;
+            background: #1877f2;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background: #0f5ed7;
+        }
+
+        /* 🔷 帖子 */
+        .post {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+
+            display: flex;
+            flex-direction: column;
+        }
+
+        .content {
+            margin: 0;
+        }
+
+        /* 🔷 底部（时间 + delete 同一行） */
+        .post-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .time {
+            font-size: 12px;
+            color: #999;
+        }
+
+        /* 🔴 delete 样式（灰色文字） */
+        .delete-btn {
+            background: none;
+            border: none;
+            color: #888;
+            font-size: 13px;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .delete-btn:hover {
+            color: #e74c3c;
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <!-- 🔷 导航栏 -->
+    <div class="navbar">
+        <div><strong>MiniTalk</strong></div>
+
+        <div class="nav-links">
+            <a href="{% url 'home' %}">Home</a>
+            <a href="{% url 'create_post' %}">New Story</a>
+            <a href="{% url 'post' %}">History Posts</a>
+
+            {% if request.user.is_authenticated %}
+                <span style="margin-left: 20px; color: #ddd;">
+                    {{ request.user.username }}
+                </span>
+
+                <a href="{% url 'logout' %}" style="margin-left: 10px;">Logout</a>
+            {% else %}
+                <a href="{% url 'login' %}" style="margin-left: 20px;">Login</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- 🔷 主体 -->
+    <div class="container">
+
+        <!-- 发帖 -->
+        <div class="post-box">
+            <form method="post" action="{% url 'create_post' %}">
+                {% csrf_token %}
+                <textarea name="content" placeholder="What's on your mind?"></textarea>
+                <br>
+                <button class="btn" type="submit">Post</button>
+            </form>
+        </div>
+
+        <!-- 帖子列表 -->
+        {% for post in posts %}
+            <div class="post">
+
+                <p class="content">{{ post.content }}</p>
+
+                <div class="post-footer">
+
+                    <div class="time">
+                        {{ post.created_at|date:"Y-m-d H:i" }}
+                    </div>
+
+                    <form method="post" action="{% url 'delete_post' post.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="delete-btn">delete</button>
+                    </form>
+
+                </div>
+
+            </div>
+        {% empty %}
+            <p>No posts yet...</p>
+        {% endfor %}
+
+    </div>
+
+</body>
+</html>

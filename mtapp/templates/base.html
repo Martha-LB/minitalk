@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>MiniTalk</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background-color: #333;
+            color: white;
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            margin-left: 20px;
+            font-size: 16px;
+        }
+
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+
+        h1, h2 {
+            color: #333;
+            margin: 10px 0;
+        }
+
+        p {
+            color: #666;
+            margin: 10px 0;
+        }
+
+        .box {
+            background: white;
+            padding: 30px;
+            width: 420px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .btn {
+            display: inline-block;
+            margin: 12px 8px 0 8px;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #1877f2, #42a5f5);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+        }
+
+        .subtext {
+            margin-top: 25px;
+            font-size: 14px;
+            color: #777;
+        }
+
+        .main {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #welcome-line {
+            min-height: 32px;
+        }
+
+        #subtext-text {
+            min-height: 24px;
+            color: #666;
+        }
+
+        #welcome-line::after {
+            content: "|";
+            margin-left: 4px;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50%, 100% { opacity: 1; }
+            25%, 75% { opacity: 0; }
+        }
+
+        .fade-line {
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.5s ease;
+        }
+
+        .show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="navbar">
+        <div><strong>MiniTalk</strong></div>
+
+        <div class="nav-links">
+            <a href="{% url 'home' %}">Home</a>
+            <a href="{% url 'create_post' %}">New Story</a>
+            <a href="{% url 'post' %}">History Posts</a>
+
+            {% if request.user.is_authenticated %}
+                <span style="margin-left: 20px; color: #ddd;">
+                    {{ request.user.username }}
+                </span>
+
+                <a href="{% url 'logout' %}" style="margin-left: 10px;">Logout</a>
+            {% else %}
+                <a href="{% url 'login' %}" style="margin-left: 20px;">Login</a>
+            {% endif %}
+            
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="box">
+
+            {% if request.user.is_authenticated %}
+
+                <h2 id="welcome-line"></h2>
+                <p id="subtext-text"></p>
+
+            {% else %}
+
+                <h1 id="line1">Welcome to MiniTalk!</h1>
+                <p id="line2">Your private social space is starting...</p>
+                <p id="line3">Join me! Spend a great time here!</p>
+
+                <div id="line4" class="subtext">Already have an account?</div>
+                <a id="line5" href="{% url 'login' %}" class="btn">Log In</a>
+
+                <div id="line6" class="subtext">Don't have an account yet?</div>
+                <a id="line7" href="{% url 'register' %}" class="btn">Sign Up</a>
+
+            {% endif %}
+
+        </div>
+    </div>
+
+    {% if request.user.is_authenticated %}
+    <script>
+        function typeText(element, text, speed, callback) {
+            let i = 0;
+
+            function typing() {
+                if (i < text.length) {
+                    element.innerHTML += text.charAt(i);
+                    i++;
+                    setTimeout(typing, speed);
+                } else if (callback) {
+                    callback();
+                }
+            }
+
+            typing();
+        }
+
+        window.onload = function () {
+            const line = document.getElementById("welcome-line");
+
+            typeText(line, "Welcome, ", 120, function () {
+                typeText(line, "{{ request.user.username|escapejs }}", 120, function () {
+                    typeText(
+                        document.getElementById("subtext-text"),
+                        "Glad to see you again!",
+                        80
+                    );
+                });
+            });
+        };
+    </script>
+    {% else %}
+    <script>
+        const lines = [
+            "line1",
+            "line2",
+            "line3",
+            "line4",
+            "line5",
+            "line6",
+            "line7"
+        ];
+
+        window.onload = function () {
+            lines.forEach((id, index) => {
+                const el = document.getElementById(id);
+                el.classList.add("fade-line");
+
+                setTimeout(() => {
+                    el.classList.add("show");
+                }, index * 400);
+            });
+        };
+    </script>
+    {% endif %}
+
+</body>
+</html>

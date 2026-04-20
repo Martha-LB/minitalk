@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>MiniTalk Feed</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+        }
+
+        .navbar {
+            background-color: #333;
+            color: white;
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            margin-left: 20px;
+            font-size: 16px;
+        }
+
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+
+        .container {
+            width: 600px;
+            margin: 60px auto;
+        }
+
+        .post {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+        }
+
+        .content {
+            margin: 0;
+            font-size: 15px;
+            margin-left: 35px;
+        }
+
+        .post-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .post-header {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .username {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .dot {
+            margin: 0 6px;
+        }
+
+        .time {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .post-actions {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-left: auto;
+        }
+
+        .delete-btn {
+            background: none;
+            border: none;
+            color: #888;
+            font-size: 13px;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .delete-btn:hover {
+            color: #e74c3c;
+        }
+
+        .comment-toggle {
+            background: none;
+            border: none;
+            color: #888;
+            font-size: 13px;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .comment-toggle:hover {
+            color: #1877f2;
+        }
+
+        .comments {
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+        }
+
+        .comment-box {
+            display: none;
+        }
+
+        .comment {
+            background: #f7f7f7;
+            padding: 8px 10px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .comment-time {
+            font-size: 11px;
+            color: #999;
+            margin-top: 4px;
+        }
+
+        .comment-username {
+            font-size: 11px;
+            color: #999;
+            margin-left: 6px;
+        }
+
+        .comment-form {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .comment-input {
+            flex: 1;
+            padding: 8px 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 13px;
+        }
+
+        .comment-btn {
+            background: #1877f2;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 14px;
+            cursor: pointer;
+        }
+
+        .comment-btn:hover {
+            background: #0f5ed7;
+        }
+
+        .avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #ccc;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="navbar">
+        <div><strong>MiniTalk</strong></div>
+
+        <div class="nav-links">
+            <a href="{% url 'home' %}">Home</a>
+            <a href="{% url 'create_post' %}">New Story</a>
+            <a href="{% url 'post' %}">History Posts</a>
+
+            {% if request.user.is_authenticated %}
+                <span style="margin-left: 20px; color: #ddd;">
+                    {{ request.user.username }}
+                </span>
+
+                <a href="{% url 'logout' %}" style="margin-left: 10px;">Logout</a>
+            {% else %}
+                <a href="{% url 'login' %}" style="margin-left: 20px;">Login</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="container">
+
+        <h2>All Posts</h2>
+
+        {% for post in posts %}
+            <div class="post">
+
+                <div class="post-header">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <div class="avatar"></div>
+                        <span class="username">{{ post.user.username }}</span>
+                        <span class="dot">·</span>
+                        <span class="time">
+                            {{ post.created_at|date:"Y-m-d H:i" }}
+                        </span>
+                    </div>
+                    
+                </div>
+
+                <p class="content">{{ post.content }}</p>
+
+                <div class="post-footer">
+
+                    <div class="post-actions">
+                        <button type="button" class="comment-toggle" onclick="toggleComments({{ post.id }})">
+                            comment{% if post.comments.count > 0 %} ({{ post.comments.count }}){% endif %}
+                        </button>
+
+                        {% if post.user == request.user %}
+                            <form method="post" action="{% url 'delete_post' post.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="delete-btn">delete</button>
+                            </form>
+                        {% endif%}
+                    </div>
+                </div>
+
+                <div class="comments">
+                    <div id="comment-box-{{ post.id }}" class="comment-box">
+                        {% for comment in post.comments.all %}
+                            <div class="comment">
+
+                                <div>{{ comment.content }}</div>
+
+                                <div class="comment-time" style="display:flex; justify-content:space-between; align-items:center;">
+
+                                    <div>
+                                        {{ comment.created_at|date:"Y-m-d H:i" }}
+                                        <span class="comment-username">
+                                            {% if comment.user %}
+                                                {{ comment.user.username }}
+                                            {% else %}
+                                                Anonymous
+                                            {% endif %}
+                                        </span>
+                                    </div>
+
+                                    {% if comment.user == request.user or comment.post.user == request.user %}
+                                        <form method="post" action="{% url 'delete_comment' comment.id %}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="delete-btn">delete</button>
+                                        </form>
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+                        {% empty %}
+                            <div class="comment-time">No comments yet.</div>
+                        {% endfor %}
+
+                        <form method="post" action="{% url 'create_comment' post.id %}" class="comment-form">
+                            {% csrf_token %}
+                            <input type="text" name="content" class="comment-input" placeholder="Write a comment...">
+                            <button type="submit" class="comment-btn">Comment</button>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        {% empty %}
+            <p>No posts yet...</p>
+        {% endfor %}
+
+    </div>
+
+    <script>
+        function toggleComments(postId) {
+            const box = document.getElementById("comment-box-" + postId);
+
+            if (box.style.display === "none" || box.style.display === "") {
+                box.style.display = "block";
+            } else {
+                box.style.display = "none";
+            }
+        }
+    </script>
+
+</body>
+</html>
