@@ -11,34 +11,91 @@
             background-color: #f0f2f5;
         }
 
-        /* 🔷 顶部导航栏 */
+        /* 顶部导航栏 */
         .navbar {
             background-color: #333;
             color: white;
-            padding: 15px 40px;
+            height: 70px;
+            padding: 0 60px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+
+            box-shadow: 0 8px 12px rgba(0,0,0,0.25);
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 36px;
+        }
+
+        .logo a {
+            font-size: 26px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            color: white;
+            text-decoration: none;
+        }
+
+        .logo a:visited {
+            color: white;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 22px;
         }
 
         .nav-links a {
             color: white;
             text-decoration: none;
-            margin-left: 20px;
-            font-size: 16px;
+            font-size: 18px;
+        }
+
+        .nav-links a:visited {
+            color: white;
         }
 
         .nav-links a:hover {
             text-decoration: underline;
         }
 
-        /* 🔷 页面容器 */
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-info {
+            color: #ddd;
+            font-size: 14px;
+        }
+
+        .logout-link {
+            color: #ddd;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .logout-link:visited {
+            color: #ddd;
+        }
+
+        .logout-link:hover {
+            color: white;
+            text-decoration: underline;
+        }
+
+        /* 页面容器 */
         .container {
-            width: 600px;
+            width: 820px;
+            max-width: 90%;
             margin: 60px auto;
         }
 
-        /* 🔷 发帖框 */
+        /* 发帖框 */
         .post-box {
             background: white;
             padding: 20px;
@@ -61,7 +118,7 @@
         .btn {
             margin-top: 12px;
             padding: 8px 22px;
-            background: #4CAF50;   /* 浅绿色 */
+            background: #6c757d;   /* 灰色 */
             color: white;
             border: none;
             border-radius: 999px;  /* 椭圆 */
@@ -70,10 +127,10 @@
         }
 
         .btn:hover {
-            background: #45a049;
+            background: #5a6268;
         }
 
-        /* 🔷 帖子 */
+        /* 帖子 */
         .post {
             background: white;
             padding: 15px;
@@ -89,7 +146,7 @@
             margin: 0;
         }
 
-        /* 🔷 底部（时间 + delete 同一行） */
+        /* 底部 */
         .post-footer {
             display: flex;
             justify-content: space-between;
@@ -102,7 +159,7 @@
             color: #999;
         }
 
-        /* 🔴 delete 样式（灰色文字） */
+        /* delete 样式 */
         .delete-btn {
             background: none;
             border: none;
@@ -121,33 +178,34 @@
 
 <body>
 
-    <!-- 🔷 导航栏 -->
+    <!-- 导航栏 -->
     <div class="navbar">
-        <div>
-            <a href="{% url 'home' %}" style="color: white; text-decoration: none;">
-                <strong>MiniTalk</strong>
-            </a>
+        <div class="nav-left">
+            <div class="logo">
+                <a href="{% url 'home' %}">
+                    <strong>MiniTalk</strong>
+                </a>
+            </div>
+
+            <div class="nav-links">
+                <a href="{% url 'public_post' %}">Explore</a>
+                <a href="{% url 'post' %}">My Journal</a>
+                <a href="{% url 'create_post' %}">New Story</a>
+            </div>
         </div>
 
-        <div class="nav-links">
-            <a href="{% url 'public_post' %}">Explore</a>
-
-            <a href="{% url 'post' %}">My Journal</a>
-            <a href="{% url 'create_post' %}">New Story</a>
-
+        <div class="nav-right">
             {% if request.user.is_authenticated %}
-                <span style="margin-left: 20px; color: #ddd;">
-                    {{ request.user.username }}
-                </span>
-
-                <a href="{% url 'logout' %}" style="margin-left: 10px;">Logout</a>
+                <span class="user-info">{{ request.user.username }}</span>
+                <a href="{% url 'logout' %}" class="logout-link">Logout</a>
             {% else %}
-                <a href="{% url 'login' %}" style="margin-left: 20px;">Login</a>
+                <a href="{% url 'login' %}" class="logout-link">Login</a>
             {% endif %}
         </div>
     </div>
 
-    <!-- 🔷 主体 -->
+
+    <!-- 主体 -->
     <div class="container">
 
         <!-- 发帖 -->
@@ -156,7 +214,7 @@
                 {% csrf_token %}
                 <textarea name="content" placeholder="What's on your mind?"></textarea>
 
-                <!-- 👇 新增：公开 / 私密 -->
+                <!-- 公开 / 私密 -->
                 <div style="margin-top:10px; font-size:14px; color:#555;">
                     <label>
                         <input type="checkbox" name="is_public" checked>

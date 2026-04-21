@@ -3,6 +3,7 @@ from .models import Post, Comment
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q
 
 
 # Create your views here.
@@ -11,13 +12,36 @@ def home(request):
 
 @login_required
 def post(request):
-    posts = Post.objects.filter(user = request.user).order_by('-created_at')
-    return render(request, "post.html", {"posts":posts, "mode": "mine"})
+    query = request.GET.get("q", "").strip()
+
+    posts = Post.objects.filter(user = request.user)
+    if query:
+        posts = posts.filter(
+            Q(content__icontains=query)
+        )
+    posts = posts.order_by("-created_at")
+    count = posts.count()
+
+    return render(request, "post.html", {
+        "posts":posts, 
+        "mode": "mine", 
+        "query": query,
+        "count": count,
+        })
 
 @login_required
 def public_post(request):
-    posts = Post.objects.filter(is_public=True).order_by('-created_at')
-    return render(request, "post.html", {"posts":posts, "mode": "public"})
+    query = request.GET.get("q", "").strip()
+
+    posts = Post.objects.filter(is_public=True)
+
+    if query:
+        posts = posts.filter(
+            Q(content__icontains=query)
+        )
+    posts = posts.order_by("-created_at")
+
+    return render(request, "post.html", {"posts":posts, "mode": "public", "query": query,})
 
 
 @login_required
@@ -100,3 +124,23 @@ def delete_comment(request, comment_id):
 
     return redirect(request.META.get('HTTP_REFERER', 'post'))
 
+
+@login_required
+def edit_post(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+
+    # 只允许作者编辑
+    if post.user != request.user:
+        return redirect("post")
+
+    if request.method == "POST":
+        content = request.POST.get("content", "").strip()
+        if content:
+            post.content = content
+            post.is_public = request.POST.get("is_public") == "on"
+            post.save()
+
+        post.is_public = request.POST.get("is_public") == "on"
+        return redirect("post")
+
+    return render(request, "edit_post.html", {"post": post})

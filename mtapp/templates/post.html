@@ -14,25 +14,83 @@
         .navbar {
             background-color: #333;
             color: white;
-            padding: 15px 40px;
+            height: 70px;
+            padding: 0 60px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+
+            box-shadow: 0 8px 12px rgba(0,0,0,0.25);
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 36px;
+        }
+
+        .logo a {
+            font-size: 26px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            color: white;
+            text-decoration: none;
+        }
+
+        .logo a:visited {
+            color: white;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 22px;
         }
 
         .nav-links a {
             color: white;
             text-decoration: none;
-            margin-left: 20px;
-            font-size: 16px;
+            font-size: 18px;
+        }
+
+        .nav-links a:visited {
+            color: white;
         }
 
         .nav-links a:hover {
             text-decoration: underline;
         }
 
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-info {
+            color: #ddd;
+            font-size: 14px;
+        }
+
+        .logout-link {
+            color: #ddd;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .logout-link:visited {
+            color: #ddd;
+        }
+
+        .logout-link:hover {
+            color: white;
+            text-decoration: underline;
+        }
+        
+
         .container {
-            width: 600px;
+            width: 820px;
+            max-width: 90%;
             margin: 60px auto;
         }
 
@@ -178,39 +236,84 @@
 <body>
 
     <div class="navbar">
-        <div>
-            <a href="{% url 'home' %}" style="color: white; text-decoration: none;">
-                <strong>MiniTalk</strong>
-            </a>
+        <div class="nav-left">
+            <div class="logo">
+                <a href="{% url 'home' %}">
+                    <strong>MiniTalk</strong>
+                </a>
+            </div>
+
+            <div class="nav-links">
+                <a href="{% url 'public_post' %}">Explore</a>
+                <a href="{% url 'post' %}">My Journal</a>
+                <a href="{% url 'create_post' %}">New Story</a>
+            </div>
         </div>
 
-        <div class="nav-links">
-            <a href="{% url 'public_post' %}">Explore</a>
-            
-            <a href="{% url 'post' %}">My Journal</a>
-            <a href="{% url 'create_post' %}">New Story</a>
-
+        <div class="nav-right">
             {% if request.user.is_authenticated %}
-                <span style="margin-left: 20px; color: #ddd;">
-                    {{ request.user.username }}
-                </span>
-
-                <a href="{% url 'logout' %}" style="margin-left: 10px;">Logout</a>
+                <span class="user-info">{{ request.user.username }}</span>
+                <a href="{% url 'logout' %}" class="logout-link">Logout</a>
             {% else %}
-                <a href="{% url 'login' %}" style="margin-left: 20px;">Login</a>
+                <a href="{% url 'login' %}" class="logout-link">Login</a>
             {% endif %}
         </div>
     </div>
 
     <div class="container">
 
-        <h2>
+        <h2 style="display:flex; align-items:center; gap:10px;">
             {% if mode == "mine" %}
                 My Thoughts
+                <span style="font-size:20px; color:#3e3c3c;">
+                    ({{ count }})
+                </span>
             {% else %}
                 What Others Are Thinking
             {% endif %}
         </h2>
+
+        <div style="margin-bottom: 20px;">
+            <form method="get" style="display:flex; gap:10px; align-items:center;">
+                <input
+                    type="text"
+                    name="q"
+                    value="{{ query }}"
+                    placeholder="Search..."
+                    style="
+                        flex:1;
+                        padding:10px 14px;
+                        border:1px solid #ccc;
+                        border-radius:999px;
+                        font-size:14px;
+                        box-sizing:border-box;
+                    "
+                >
+                <button
+                    type="submit"
+                    style="
+                        padding:8px 18px;
+                        border:none;
+                        border-radius:999px;
+                        background:#6c757d;
+                        color:white;
+                        cursor:pointer;
+                        font-size:14px;
+                    "
+                >
+                    Search
+                </button>
+            </form>
+        </div>
+
+        {% if query %}
+            {% if mode == "mine" %}
+                <a href="{% url 'post' %}" style="font-size:14px; color:#666; text-decoration:none;">Clear</a>
+            {% else %}
+                <a href="{% url 'public_post' %}" style="font-size:14px; color:#666; text-decoration:none;">Clear</a>
+            {% endif %}
+        {% endif %}
+
 
         {% for post in posts %}
             <div class="post">
@@ -226,7 +329,7 @@
                     </div>
 
                     {% if mode == "mine" and not post.is_public %}
-                        <span class="time" style="margin-left:auto; opacity:0.7;"></span>
+                        <span class="time" style="margin-left:auto; opacity:0.7;">
                             🔒 Private
                         </span>
                     {% endif %}
@@ -245,6 +348,8 @@
                         </button>
 
                         {% if post.user == request.user %}
+                            <a href="{% url 'edit_post' post.id %}" class="delete-btn" style="text-decoration:none;">edit</a>
+
                             <form method="post" action="{% url 'delete_post' post.id %}">
                                 {% csrf_token %}
                                 <button type="submit" class="delete-btn">delete</button>

@@ -14,26 +14,80 @@
             min-height: 100vh;
         }
 
+        /* 顶部导航栏 */
         .navbar {
             background-color: #333;
             color: white;
-            padding: 15px 40px;
+            height: 70px;
+            padding: 0 60px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
+
+            box-shadow: 0 8px 12px rgba(0,0,0,0.25);
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 36px;
+        }
+
+        .logo a {
+            font-size: 26px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            color: white;
+            text-decoration: none;
+        }
+
+        .logo a:visited {
+            color: white;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 22px;
         }
 
         .nav-links a {
             color: white;
             text-decoration: none;
-            margin-left: 20px;
-            font-size: 16px;
+            font-size: 18px;
+        }
+
+        .nav-links a:visited {
+            color: white;
         }
 
         .nav-links a:hover {
+            text-decoration: underline;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-info {
+            color: #ddd;
+            font-size: 14px;
+        }
+
+        .logout-link {
+            color: #ddd;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .logout-link:visited {
+            color: #ddd;
+        }
+
+        .logout-link:hover {
+            color: white;
             text-decoration: underline;
         }
 
@@ -60,7 +114,7 @@
             display: inline-block;
             margin: 12px 8px 0 8px;
             padding: 12px 24px;
-            background: linear-gradient(135deg, #1877f2, #42a5f5);
+            background: linear-gradient(135deg, #212122, #4e4f50);
             color: white;
             text-decoration: none;
             border-radius: 8px;
@@ -117,46 +171,60 @@
             opacity: 1;
             transform: translateY(0);
         }
+
+        .landing {
+            text-align: center;
+            max-width: 600px;
+        }
+
+        .landing h1 {
+            font-size: 32px;
+        }
+
+        .landing p {
+            font-size: 16px;
+        }
+
+
     </style>
 </head>
 
 <body>
 
     <div class="navbar">
-        <div>
-            <a href="{% url 'home' %}" style="color: white; text-decoration: none;">
-                <strong>MiniTalk</strong>
-            </a>
+        <div class="nav-left">
+            <div class="logo">
+                <a href="{% url 'home' %}">
+                    <strong>MiniTalk</strong>
+                </a>
+            </div>
+
+            <div class="nav-links">
+                <a href="{% url 'public_post' %}">Explore</a>
+                <a href="{% url 'post' %}">My Journal</a>
+                <a href="{% url 'create_post' %}">New Story</a>
+            </div>
         </div>
 
-
-        <div class="nav-links">
-            <a href="{% url 'public_post' %}">Explore</a>
-            <a href="{% url 'post' %}">My Journal</a>
-            <a href="{% url 'create_post' %}">New Story</a>
-
+        <div class="nav-right">
             {% if request.user.is_authenticated %}
-                <span style="margin-left: 20px; color: #ddd;">
-                    {{ request.user.username }}
-                </span>
-
-                <a href="{% url 'logout' %}" style="margin-left: 10px;">Logout</a>
+                <a href="{% url 'logout' %}" class="logout-link">Logout</a>
             {% else %}
-                <a href="{% url 'login' %}" style="margin-left: 20px;">Login</a>
+                <a href="{% url 'login' %}" class="logout-link">Login</a>
+                <a href="{% url 'register' %}" class="logout-link">register</a>
             {% endif %}
-            
         </div>
     </div>
 
     <div class="main">
-        <div class="box">
-
-            {% if request.user.is_authenticated %}
-
+        {% if request.user.is_authenticated %}
+            <div class="box">
                 <h2 id="welcome-line"></h2>
                 <p id="subtext-text"></p>
+            </div>
 
-            {% else %}
+        {% else %}
+            <div class="landing">
 
                 <h1 id="line1">Welcome to MiniTalk!</h1>
                 <p id="line2">Your private social space is starting...</p>
@@ -167,10 +235,11 @@
 
                 <div id="line6" class="subtext">Don't have an account yet?</div>
                 <a id="line7" href="{% url 'register' %}" class="btn">Sign Up</a>
+            
+            </div>
+        {% endif %}
 
-            {% endif %}
-
-        </div>
+        
     </div>
 
     {% if request.user.is_authenticated %}
