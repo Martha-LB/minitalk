@@ -185,9 +185,10 @@
         </div>
 
         <div class="nav-links">
-            <a href="{% url 'public_post' %}">Home</a>
+            <a href="{% url 'public_post' %}">Explore</a>
+            
+            <a href="{% url 'post' %}">My Journal</a>
             <a href="{% url 'create_post' %}">New Story</a>
-            <a href="{% url 'post' %}">My Posts</a>
 
             {% if request.user.is_authenticated %}
                 <span style="margin-left: 20px; color: #ddd;">
@@ -233,7 +234,7 @@
                 </div>
 
                 <p class="content">
-                    {{ post.content }}
+                    {{ post.content|linebreaksbr }}
                 </p>
 
                 <div class="post-footer">
@@ -257,7 +258,7 @@
                         {% for comment in post.comments.all %}
                             <div class="comment">
 
-                                <div>{{ comment.content }}</div>
+                                <div>{{ comment.content|linebreaksbr }}</div>
 
                                 <div class="comment-time" style="display:flex; justify-content:space-between; align-items:center;">
 

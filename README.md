@@ -1,7 +1,7 @@
 # MiniTalk
 
-MiniTalk is a simple social web application built with Django.  
-Users can create posts, choose between public and private visibility, and interact through comments.
+MiniTalk is a lightweight journaling web app where users can record personal thoughts, manage private entries, and optionally share selected posts publicly.
+
 
 ## Features
 

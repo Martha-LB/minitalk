@@ -131,8 +131,9 @@
 
         <div class="nav-links">
             <a href="{% url 'public_post' %}">Home</a>
-            <a href="{% url 'create_post' %}">New Story</a>
+
             <a href="{% url 'post' %}">My Posts</a>
+            <a href="{% url 'create_post' %}">New Story</a>
 
             {% if request.user.is_authenticated %}
                 <span style="margin-left: 20px; color: #ddd;">
@@ -173,7 +174,7 @@
         {% for post in posts %}
             <div class="post">
 
-                <p class="content">{{ post.content }}</p>
+                <p class="content">{{ post.content|linebreaksbr }}</p>
 
                 <div class="post-footer">
 
