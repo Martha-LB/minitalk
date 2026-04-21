@@ -130,9 +130,9 @@
         </div>
 
         <div class="nav-links">
-            <a href="{% url 'public_post' %}">Home</a>
+            <a href="{% url 'public_post' %}">Explore</a>
 
-            <a href="{% url 'post' %}">My Posts</a>
+            <a href="{% url 'post' %}">My Journal</a>
             <a href="{% url 'create_post' %}">New Story</a>
 
             {% if request.user.is_authenticated %}
