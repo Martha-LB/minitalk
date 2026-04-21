@@ -178,12 +178,16 @@
 <body>
 
     <div class="navbar">
-        <div><strong>MiniTalk</strong></div>
+        <div>
+            <a href="{% url 'home' %}" style="color: white; text-decoration: none;">
+                <strong>MiniTalk</strong>
+            </a>
+        </div>
 
         <div class="nav-links">
-            <a href="{% url 'home' %}">Home</a>
+            <a href="{% url 'public_post' %}">Home</a>
             <a href="{% url 'create_post' %}">New Story</a>
-            <a href="{% url 'post' %}">History Posts</a>
+            <a href="{% url 'post' %}">My Posts</a>
 
             {% if request.user.is_authenticated %}
                 <span style="margin-left: 20px; color: #ddd;">
@@ -199,12 +203,18 @@
 
     <div class="container">
 
-        <h2>All Posts</h2>
+        <h2>
+            {% if mode == "mine" %}
+                My Posts
+            {% else %}
+                All Posts
+            {% endif %}
+        </h2>
 
         {% for post in posts %}
             <div class="post">
 
-                <div class="post-header">
+                <div class="post-header" style="display:flex; align-items:center;">
                     <div style="display:flex; align-items:center; gap:8px;">
                         <div class="avatar"></div>
                         <span class="username">{{ post.user.username }}</span>
@@ -213,10 +223,18 @@
                             {{ post.created_at|date:"Y-m-d H:i" }}
                         </span>
                     </div>
+
+                    {% if mode == "mine" and not post.is_public %}
+                        <span class="time" style="margin-left:auto; opacity:0.7;"></span>
+                            🔒 Private
+                        </span>
+                    {% endif %}
                     
                 </div>
 
-                <p class="content">{{ post.content }}</p>
+                <p class="content">
+                    {{ post.content }}
+                </p>
 
                 <div class="post-footer">
 

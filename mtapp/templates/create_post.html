@@ -60,16 +60,17 @@
 
         .btn {
             margin-top: 12px;
-            padding: 10px 20px;
-            background: #1877f2;
+            padding: 8px 22px;
+            background: #4CAF50;   /* 浅绿色 */
             color: white;
             border: none;
-            border-radius: 8px;
+            border-radius: 999px;  /* 椭圆 */
             cursor: pointer;
+            font-size: 14px;
         }
 
         .btn:hover {
-            background: #0f5ed7;
+            background: #45a049;
         }
 
         /* 🔷 帖子 */
@@ -122,12 +123,16 @@
 
     <!-- 🔷 导航栏 -->
     <div class="navbar">
-        <div><strong>MiniTalk</strong></div>
+        <div>
+            <a href="{% url 'home' %}" style="color: white; text-decoration: none;">
+                <strong>MiniTalk</strong>
+            </a>
+        </div>
 
         <div class="nav-links">
-            <a href="{% url 'home' %}">Home</a>
+            <a href="{% url 'public_post' %}">Home</a>
             <a href="{% url 'create_post' %}">New Story</a>
-            <a href="{% url 'post' %}">History Posts</a>
+            <a href="{% url 'post' %}">My Posts</a>
 
             {% if request.user.is_authenticated %}
                 <span style="margin-left: 20px; color: #ddd;">
@@ -149,8 +154,18 @@
             <form method="post" action="{% url 'create_post' %}">
                 {% csrf_token %}
                 <textarea name="content" placeholder="What's on your mind?"></textarea>
-                <br>
-                <button class="btn" type="submit">Post</button>
+
+                <!-- 👇 新增：公开 / 私密 -->
+                <div style="margin-top:10px; font-size:14px; color:#555;">
+                    <label>
+                        <input type="checkbox" name="is_public" checked>
+                        Public
+                    </label>
+                </div>
+
+                <div style="display:flex; justify-content:flex-end;">
+                    <button class="btn" type="submit">Post</button>
+                </div>
             </form>
         </div>
 

@@ -11,15 +11,22 @@ def home(request):
 
 @login_required
 def post(request):
-    posts = Post.objects.all().order_by("-created_at")
-    return render(request, "post.html", {"posts":posts})
+    posts = Post.objects.filter(user = request.user).order_by('-created_at')
+    return render(request, "post.html", {"posts":posts, "mode": "mine"})
+
+@login_required
+def public_post(request):
+    posts = Post.objects.filter(is_public=True).order_by('-created_at')
+    return render(request, "post.html", {"posts":posts, "mode": "public"})
+
 
 @login_required
 def create_post(request):
     if request.method == "POST":
         content = request.POST.get("content")
+        is_public = request.POST.get("is_public") == "on"
         if content:
-            Post.objects.create(user=request.user, content=content.strip())
+            Post.objects.create(user=request.user, content=content.strip(),is_public=is_public)
     posts = Post.objects.filter(user=request.user).order_by('-created_at')
     return render(request, "create_post.html", {"posts":posts})
 
@@ -92,3 +99,4 @@ def delete_comment(request, comment_id):
         comment.delete()
 
     return redirect(request.META.get('HTTP_REFERER', 'post'))
+
