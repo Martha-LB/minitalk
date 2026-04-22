@@ -124,6 +124,7 @@
         .username {
             font-weight: bold;
             color: #333;
+            text-decoration: none;
         }
 
         .dot {
@@ -195,6 +196,20 @@
             font-size: 11px;
             color: #999;
             margin-left: 6px;
+        }
+
+        .comment-user-link {
+            color: #999;
+            text-decoration: none;
+        }
+
+        .comment-user-link:visited {
+            color: #999;
+        }
+
+        .comment-user-link:hover {
+            text-decoration: underline;
+            color: #555;
         }
 
         .comment-form {
@@ -328,7 +343,15 @@
                         {% else %}
                             <img src="/media/avatars/default.png" class="avatar">
                         {% endif %}
-                        <span class="username">{{ post.user.username }}</span>
+                        {% if post.user.username and post.user.id %}
+                            <a href="{% url 'user_profile' post.user.id %}" class="username">
+                                {{ post.user.username }}
+                            </a>
+                        {% elif post.user %}
+                            <span class="username"> {{ post.user.username }} </span>
+                        {% else %}
+                            <span class="username">Anonymous</span>
+                        {% endif %}
                         <span class="dot">·</span>
                         <span class="time">
                             {{ post.created_at|date:"Y-m-d H:i" }}
@@ -377,8 +400,10 @@
                                     <div>
                                         {{ comment.created_at|date:"Y-m-d H:i" }}
                                         <span class="comment-username">
-                                            {% if comment.user %}
-                                                {{ comment.user.username }}
+                                            {% if comment.user and comment.user.id %}
+                                                <a href="{% url 'user_profile' comment.user.id %}" class="comment-user-link">
+                                                    {{ comment.user.username }}
+                                                </a>
                                             {% else %}
                                                 Anonymous
                                             {% endif %}

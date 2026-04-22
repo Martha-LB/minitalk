@@ -1,5 +1,5 @@
 from django.shortcuts import render, HttpResponse, redirect, get_object_or_404
-from .models import Post, Comment, Profile
+from .models import Post, Comment, Profile, Follow
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
@@ -172,6 +172,9 @@ def edit_post(request, post_id):
 @login_required
 def profile_view(request):
     profile = request.user.profile
+    following = Follow.objects.filter(follower=request.user)
+    followers = Follow.objects.filter(following=request.user)
+
 
     error = None
 
@@ -199,4 +202,50 @@ def profile_view(request):
     return render(request, "profile.html", {
         "profile": profile,
         "error": error,
+        "following": following,
+        "followers": followers,
     })
+
+def user_profile_view(request, user_id):
+
+    user_obj = get_object_or_404(User, id=user_id)
+    profile = user_obj.profile
+    posts = Post.objects.filter(user=user_obj, is_public=True).order_by("-created_at")
+
+    is_following = False
+    if request.user.is_authenticated and request.user != user_obj:
+        is_following = Follow.objects.filter(
+            follower=request.user,
+            following=user_obj
+        ).exists()
+
+    return render(request, "user_profile.html", {
+        "profile_user": user_obj,
+        "profile": profile,
+        "posts": posts,
+        "is_following": is_following,
+    })
+
+
+
+@login_required
+def follow_user(request, user_id):
+    if request.method == "POST":
+        target_user = get_object_or_404(User, id=user_id)
+        if target_user != request.user:
+            Follow.objects.get_or_create(
+                follower=request.user,
+                following=target_user
+            )
+    return redirect("user_profile", user_id=user_id)
+
+
+@login_required
+def unfollow_user(request, user_id):
+    if request.method == "POST":
+        target_user = get_object_or_404(User, id=user_id)
+        Follow.objects.filter(
+            follower=request.user,
+            following=target_user
+        ).delete()
+    return redirect("user_profile", user_id=user_id)

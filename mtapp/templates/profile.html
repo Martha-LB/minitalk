@@ -66,11 +66,6 @@
             gap: 12px;
         }
 
-        .user-info {
-            color: #ddd;
-            font-size: 14px;
-        }
-
         .logout-link {
             color: #ddd;
             text-decoration: none;
@@ -87,8 +82,8 @@
         }
 
         .container {
-            width: 760px;
-            max-width: 92%;
+            width: 900px;
+            max-width: 94%;
             margin: 50px auto;
         }
 
@@ -97,6 +92,7 @@
             border-radius: 16px;
             padding: 36px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            margin-bottom: 26px;
         }
 
         .profile-header {
@@ -171,7 +167,7 @@
         }
 
         .save-btn {
-            background: #1877f2;
+            background: #3f3f40;
             color: white;
             border: none;
             border-radius: 10px;
@@ -199,6 +195,86 @@
             font-size: 13px;
             margin-top: 6px;
         }
+
+        .social-card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px 36px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .social-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 22px;
+            margin-top: 18px;
+        }
+
+        .social-block {
+            background: #fafafa;
+            border: 1px solid #eee;
+            border-radius: 14px;
+            padding: 20px;
+        }
+
+        .social-block h3 {
+            margin: 0 0 14px 0;
+            font-size: 18px;
+            color: #222;
+        }
+
+        .user-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .user-row:last-child {
+            border-bottom: none;
+        }
+
+        .user-avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            object-fit: cover;
+            display: block;
+            background: #d8d8d8;
+        }
+
+        .user-name {
+            color: #333;
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .user-name:visited {
+            color: #333;
+        }
+
+        .user-name:hover {
+            text-decoration: underline;
+        }
+
+        .empty-text {
+            color: #777;
+            font-size: 14px;
+            margin: 0;
+        }
+
+        @media (max-width: 760px) {
+            .social-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .profile-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
     </style>
 </head>
 <body>
@@ -215,13 +291,12 @@
                 <a href="{% url 'public_post' %}">Explore</a>
                 <a href="{% url 'post' %}">My Journal</a>
                 <a href="{% url 'create_post' %}">New Story</a>
-                <a href="{% url 'profile' %}">Account</a>
             </div>
         </div>
 
         <div class="nav-right">
             {% if request.user.is_authenticated %}
-                <span class="user-info">{{ request.user.username }}</span>
+                <a href="{% url 'profile' %}" class="logout-link">{{ request.user.username }}</a>
                 <a href="{% url 'logout' %}" class="logout-link">Logout</a>
             {% else %}
                 <a href="{% url 'login' %}" class="logout-link">Login</a>
@@ -230,8 +305,8 @@
     </div>
 
     <div class="container">
-        <div class="profile-card">
 
+        <div class="profile-card">
             <div class="profile-header">
                 {% if profile.avatar %}
                     <img src="{{ profile.avatar.url }}" alt="avatar" class="avatar-preview">
@@ -279,7 +354,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="bio">Bio</label>
+                    <label for="bio">About me</label>
                     <textarea
                         id="bio"
                         name="bio"
@@ -289,8 +364,56 @@
 
                 <button type="submit" class="save-btn">Save Changes</button>
             </form>
-
         </div>
+
+        <div class="social-card">
+            <div class="section-title">My Connections</div>
+
+            <div class="social-grid">
+
+                <div class="social-block">
+                    <h3 id="following">Following</h3>
+
+                    {% for f in following %}
+                        <div class="user-row">
+                            {% if f.following.profile.avatar %}
+                                <img src="{{ f.following.profile.avatar.url }}" alt="avatar" class="user-avatar">
+                            {% else %}
+                                <img src="/media/avatars/default.png" alt="avatar" class="user-avatar">
+                            {% endif %}
+
+                            <a href="{% url 'user_profile' f.following.id %}" class="user-name">
+                                {{ f.following.username }}
+                            </a>
+                        </div>
+                    {% empty %}
+                        <p class="empty-text">You are not following anyone yet.</p>
+                    {% endfor %}
+                </div>
+
+                <div class="social-block">
+                    <h3>Followers</h3>
+
+                    {% for f in followers %}
+                        <div class="user-row">
+                            {% if f.follower.profile.avatar %}
+                                <img src="{{ f.follower.profile.avatar.url }}" alt="avatar" class="user-avatar">
+                            {% else %}
+                                <img src="/media/avatars/default.png" alt="avatar" class="user-avatar">
+                            {% endif %}
+
+                            <a href="{% url 'user_profile' f.follower.id %}" class="user-name">
+                                {{ f.follower.username }}
+                            </a>
+                        </div>
+                    {% empty %}
+                        <p class="empty-text">No followers yet.</p>
+                    {% endfor %}
+                </div>
+
+            </div>
+        </div>
+
     </div>
 
 </body>
