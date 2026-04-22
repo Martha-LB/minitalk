@@ -33,5 +33,19 @@ The project focuses on building a clean and functional full-stack application wi
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/your-username/minitalk.git
+git clone https://github.com/Martha-LB/minitalk.git
 cd minitalk
+```
+
+2. Create a virtual environment
+
+3. Apply database migrations:
+
+```bash
+python manage.py migrate
+```
+
+4. Run the development server:
+```bash
+python manage.py runserver
+```
