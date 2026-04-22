@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Profile - MiniTalk</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+        }
+
+        .navbar {
+            background-color: #333;
+            color: white;
+            height: 70px;
+            padding: 0 60px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 8px 12px rgba(0,0,0,0.25);
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 36px;
+        }
+
+        .logo a {
+            font-size: 26px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            color: white;
+            text-decoration: none;
+        }
+
+        .logo a:visited {
+            color: white;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 22px;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-size: 18px;
+        }
+
+        .nav-links a:visited {
+            color: white;
+        }
+
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-info {
+            color: #ddd;
+            font-size: 14px;
+        }
+
+        .logout-link {
+            color: #ddd;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .logout-link:visited {
+            color: #ddd;
+        }
+
+        .logout-link:hover {
+            color: white;
+            text-decoration: underline;
+        }
+
+        .container {
+            width: 760px;
+            max-width: 92%;
+            margin: 50px auto;
+        }
+
+        .profile-card {
+            background: white;
+            border-radius: 16px;
+            padding: 36px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            margin-bottom: 28px;
+        }
+
+        .avatar-preview {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: #d8d8d8;
+            display: block;
+        }
+
+        .avatar-placeholder {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            background: #d8d8d8;
+        }
+
+        .profile-basic h2 {
+            margin: 0 0 8px 0;
+            font-size: 28px;
+            color: #222;
+        }
+
+        .profile-basic p {
+            margin: 0;
+            color: #777;
+            font-size: 14px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            margin-bottom: 18px;
+            color: #222;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #444;
+            font-weight: 600;
+        }
+
+        input[type="text"],
+        textarea,
+        input[type="file"] {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 12px 14px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            font-size: 14px;
+            background: white;
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+            font-family: Arial, sans-serif;
+        }
+
+        .save-btn {
+            background: #1877f2;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 11px 22px;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        .save-btn:hover {
+            background: #0f5ed7;
+        }
+
+        .error-box {
+            background: #fdecea;
+            color: #b42318;
+            border: 1px solid #f5c2c0;
+            padding: 12px 14px;
+            border-radius: 10px;
+            margin-bottom: 18px;
+            font-size: 14px;
+        }
+
+        .hint {
+            color: #777;
+            font-size: 13px;
+            margin-top: 6px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="navbar">
+        <div class="nav-left">
+            <div class="logo">
+                <a href="{% url 'home' %}">
+                    <strong>MiniTalk</strong>
+                </a>
+            </div>
+
+            <div class="nav-links">
+                <a href="{% url 'public_post' %}">Explore</a>
+                <a href="{% url 'post' %}">My Journal</a>
+                <a href="{% url 'create_post' %}">New Story</a>
+                <a href="{% url 'profile' %}">Account</a>
+            </div>
+        </div>
+
+        <div class="nav-right">
+            {% if request.user.is_authenticated %}
+                <span class="user-info">{{ request.user.username }}</span>
+                <a href="{% url 'logout' %}" class="logout-link">Logout</a>
+            {% else %}
+                <a href="{% url 'login' %}" class="logout-link">Login</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="profile-card">
+
+            <div class="profile-header">
+                {% if profile.avatar %}
+                    <img src="{{ profile.avatar.url }}" alt="avatar" class="avatar-preview">
+                {% else %}
+                    <div class="avatar-placeholder"></div>
+                {% endif %}
+
+                <div class="profile-basic">
+                    <h2>{{ request.user.username }}</h2>
+                    <p>Manage your profile information here.</p>
+                </div>
+            </div>
+
+            <div class="section-title">Edit Profile</div>
+
+            {% if error %}
+                <div class="error-box">
+                    {{ error }}
+                </div>
+            {% endif %}
+
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input
+                        type="text"
+                        id="username"
+                        name="username"
+                        value="{{ request.user.username }}"
+                        placeholder="Enter your username"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="avatar">Avatar</label>
+                    <input
+                        type="file"
+                        id="avatar"
+                        name="avatar"
+                        accept="image/*"
+                    >
+                    <div class="hint">Choose an image file for your profile picture.</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="bio">Bio</label>
+                    <textarea
+                        id="bio"
+                        name="bio"
+                        placeholder="Write something about yourself..."
+                    >{{ profile.bio }}</textarea>
+                </div>
+
+                <button type="submit" class="save-btn">Save Changes</button>
+            </form>
+
+        </div>
+    </div>
+
+</body>
+</html>

@@ -208,6 +208,7 @@
 
         <div class="nav-right">
             {% if request.user.is_authenticated %}
+                <a href="{% url 'profile' %}" class="logout-link">{{ request.user.username }}</a>
                 <a href="{% url 'logout' %}" class="logout-link">Logout</a>
             {% else %}
                 <a href="{% url 'login' %}" class="logout-link">Login</a>

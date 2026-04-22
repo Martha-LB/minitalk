@@ -1,9 +1,11 @@
 from django.shortcuts import render, HttpResponse, redirect, get_object_or_404
-from .models import Post, Comment
+from .models import Post, Comment, Profile
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
+from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
+from .forms import UserUpdateForm, ProfileUpdateForm
 
 
 # Create your views here.
@@ -61,13 +63,34 @@ def delete_post(request, post_id):
             post.delete()
     return redirect(request.META.get("HTTP_REFERER", "post"))
 
+@login_required
 def create_comment(request, post_id):
     if request.method == "POST":
         post = get_object_or_404(Post, id=post_id)
         content = request.POST.get("content")
         if content and content.strip():
             Comment.objects.create(post=post,user=request.user, content=content.strip())
-    return redirect("post")
+
+    referer = request.META.get("HTTP_REFERER", "/post/")
+    parsed = urlparse(referer)
+    query_params = parse_qs(parsed.query)
+
+    query_params["open_comment"] = [str(post_id)]
+
+    new_query = urlencode(query_params, doseq=True)
+    new_fragment = f"post-{post_id}"
+
+    new_url = urlunparse((
+        parsed.scheme,
+        parsed.netloc,
+        parsed.path,
+        parsed.params,
+        new_query,
+        new_fragment,
+    ))
+
+    return redirect(new_url)
+
 
 def register_view(request):
     if request.method == "POST":
@@ -144,3 +167,36 @@ def edit_post(request, post_id):
         return redirect("post")
 
     return render(request, "edit_post.html", {"post": post})
+
+
+@login_required
+def profile_view(request):
+    profile = request.user.profile
+
+    error = None
+
+    if request.method == "POST":
+        username = request.POST.get("username", "").strip()
+        bio = request.POST.get("bio", "").strip()
+
+        if username:
+            from django.contrib.auth.models import User
+            if User.objects.exclude(id=request.user.id).filter(username=username).exists():
+                error = "This username is already taken."
+            else:
+                request.user.username = username
+                request.user.save()
+
+                profile.bio = bio
+                if "avatar" in request.FILES:
+                    profile.avatar = request.FILES["avatar"]
+                profile.save()
+
+                return redirect("profile")
+        else:
+            error = "Username cannot be empty."
+
+    return render(request, "profile.html", {
+        "profile": profile,
+        "error": error,
+    })

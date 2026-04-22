@@ -228,6 +228,8 @@
             width: 28px;
             height: 28px;
             border-radius: 50%;
+            object-fit: cover;
+            display: block;
             background: #ccc;
         }
     </style>
@@ -252,7 +254,7 @@
 
         <div class="nav-right">
             {% if request.user.is_authenticated %}
-                <span class="user-info">{{ request.user.username }}</span>
+                <a href="{% url 'profile' %}" class="logout-link">{{ request.user.username }}</a>
                 <a href="{% url 'logout' %}" class="logout-link">Logout</a>
             {% else %}
                 <a href="{% url 'login' %}" class="logout-link">Login</a>
@@ -316,11 +318,16 @@
 
 
         {% for post in posts %}
-            <div class="post">
+            <div id="post-{{ post.id }}" class="post">
 
                 <div class="post-header" style="display:flex; align-items:center;">
                     <div style="display:flex; align-items:center; gap:8px;">
-                        <div class="avatar"></div>
+
+                        {% if post.user.profile.avatar %}
+                            <img src="{{ post.user.profile.avatar.url }}" class="avatar">
+                        {% else %}
+                            <img src="/media/avatars/default.png" class="avatar">
+                        {% endif %}
                         <span class="username">{{ post.user.username }}</span>
                         <span class="dot">·</span>
                         <span class="time">
@@ -359,7 +366,7 @@
                 </div>
 
                 <div class="comments">
-                    <div id="comment-box-{{ post.id }}" class="comment-box">
+                    <div id="comment-box-{{ post.id }}" class="comment-box" style="display: none;">
                         {% for comment in post.comments.all %}
                             <div class="comment">
 
@@ -409,14 +416,25 @@
 
     <script>
         function toggleComments(postId) {
-            const box = document.getElementById("comment-box-" + postId);
-
+            const box = document.getElementById(`comment-box-${postId}`);
             if (box.style.display === "none" || box.style.display === "") {
                 box.style.display = "block";
             } else {
                 box.style.display = "none";
             }
         }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const params = new URLSearchParams(window.location.search);
+            const openCommentId = params.get("open_comment");
+
+            if (openCommentId) {
+                const box = document.getElementById(`comment-box-${openCommentId}`);
+                if (box) {
+                    box.style.display = "block";
+                }
+            }
+        });
     </script>
 
 </body>
