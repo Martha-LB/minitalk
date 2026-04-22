@@ -1,22 +1,37 @@
 # MiniTalk
 
-MiniTalk is a lightweight journaling web app where users can record personal thoughts, manage private entries, and optionally share selected posts publicly.
+MiniTalk is a lightweight social journaling web application built with Django.  
+Users can write personal posts, manage private entries, and explore content shared by others.
+
+The project focuses on building a clean and functional full-stack application with user interaction features.
 
 
 ## Features
 
-- User authentication (login / logout)
-- Create posts
-- Public / private post visibility
+- User authentication (register, login, logout)
+- Create, edit, and delete posts
+- Public and private post visibility
 - Personal post history
-- Comment system
-- Delete posts and comments
+- Comment system with user interaction
+- User profiles with avatar and bio
+- Follow / unfollow users
+- View other users' public profiles
 - Clean UI with responsive layout
+
 
 ## Tech Stack
 
 - Python 3
 - Django
-- SQLite (for development)
+- SQLite
 - Gunicorn
 - Nginx
+
+
+## Installation
+
+1. Clone the repository:
+
+```bash
+git clone https://github.com/your-username/minitalk.git
+cd minitalk
