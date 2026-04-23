@@ -247,6 +247,33 @@
             display: block;
             background: #ccc;
         }
+        .pagination {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;  /* 左右分开 */
+            align-items: center;
+        }
+
+        .pagination a {
+            display: inline-block;
+            padding: 6px 12px;
+            margin: 0 4px;
+            border-radius: 6px;
+            background: #eee;
+            color: #333;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .pagination a:visited {
+            color: #333;
+        }
+
+        .pagination a:hover {
+            background: #ddd;
+        }
+
+
     </style>
 </head>
 
@@ -332,7 +359,7 @@
         {% endif %}
 
 
-        {% for post in posts %}
+        {% for post in page_obj %}
             <div id="post-{{ post.id }}" class="post">
 
                 <div class="post-header" style="display:flex; align-items:center;">
@@ -354,7 +381,7 @@
                         {% endif %}
                         <span class="dot">·</span>
                         <span class="time">
-                            {{ post.created_at|date:"Y-m-d H:i" }}
+                            <span class="post-time" data-time="{{ post.created_at|date:'c' }}"></span>
                         </span>
                     </div>
 
@@ -398,7 +425,7 @@
                                 <div class="comment-time" style="display:flex; justify-content:space-between; align-items:center;">
 
                                     <div>
-                                        {{ comment.created_at|date:"Y-m-d H:i" }}
+                                        <span class="post-time" data-time="{{ post.created_at|date:'c' }}"></span>
                                         <span class="comment-username">
                                             {% if comment.user and comment.user.id %}
                                                 <a href="{% url 'user_profile' comment.user.id %}" class="comment-user-link">
@@ -433,9 +460,23 @@
                 </div>
 
             </div>
+
+
         {% empty %}
             <p>No posts yet...</p>
         {% endfor %}
+
+        <div class="pagination">
+            <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+
+            {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}">Previous</a>
+            {% endif %}
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}">Next</a>
+            {% endif %}
+        </div>
 
     </div>
 
@@ -461,6 +502,30 @@
             }
         });
     </script>
+
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const timeElements = document.querySelectorAll(".post-time");
+
+        timeElements.forEach(function (el) {
+            const utcTime = el.dataset.time;
+            if (!utcTime) return;
+
+            const date = new Date(utcTime);
+
+            el.textContent = date.toLocaleString([], {
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: false
+            });
+        });
+    });
+    </script>
+
 
 </body>
 </html>

@@ -6,6 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
 from .forms import UserUpdateForm, ProfileUpdateForm
+from django.core.paginator import Paginator
 
 
 # Create your views here.
@@ -23,9 +24,12 @@ def post(request):
         )
     posts = posts.order_by("-created_at")
     count = posts.count()
+    paginator = Paginator(posts, 20)   # 每页20条
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
 
     return render(request, "post.html", {
-        "posts":posts, 
+        'page_obj': page_obj, 
         "mode": "mine", 
         "query": query,
         "count": count,
@@ -42,8 +46,11 @@ def public_post(request):
             Q(content__icontains=query)
         )
     posts = posts.order_by("-created_at")
+    paginator = Paginator(posts, 20)   # 每页20条
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
 
-    return render(request, "post.html", {"posts":posts, "mode": "public", "query": query,})
+    return render(request, "post.html", {'page_obj': page_obj, "mode": "public", "query": query,})
 
 
 @login_required
@@ -53,7 +60,7 @@ def create_post(request):
         is_public = request.POST.get("is_public") == "on"
         if content:
             Post.objects.create(user=request.user, content=content.strip(),is_public=is_public)
-    posts = Post.objects.filter(user=request.user).order_by('-created_at')
+    posts = Post.objects.filter(user=request.user).order_by('-created_at')[:5]
     return render(request, "create_post.html", {"posts":posts})
 
 def delete_post(request, post_id):

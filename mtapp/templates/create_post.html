@@ -241,7 +241,9 @@
         </div>
 
         <!-- 帖子列表 -->
+        <p> Recent posts:</p>
         {% for post in posts %}
+            
             <div class="post">
 
                 <p class="content">{{ post.content|linebreaksbr }}</p>
@@ -249,7 +251,7 @@
                 <div class="post-footer">
 
                     <div class="time">
-                        {{ post.created_at|date:"Y-m-d H:i" }}
+                        <span class="post-time" data-time="{{ post.created_at|date:'c' }}"></span>
                     </div>
 
                     <form method="post" action="{% url 'delete_post' post.id %}">
@@ -280,6 +282,30 @@
         // 页面加载时也执行一次
         autoResize(textarea);
     </script>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const timeElements = document.querySelectorAll(".post-time");
+
+        timeElements.forEach(function (el) {
+            const utcTime = el.dataset.time;
+            if (!utcTime) return;
+
+            const date = new Date(utcTime);
+
+            el.textContent = date.toLocaleString([], {
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: false
+            });
+        });
+    });
+    </script>
+
+
 </body>
 
 </html>
