@@ -11,7 +11,7 @@ from django.core.paginator import Paginator
 
 # Create your views here.
 def home(request):
-    return render(request, "base.html")
+    return render(request, "home.html")
 
 @login_required
 def post(request):

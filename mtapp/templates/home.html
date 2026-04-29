@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+{% if request.user.is_authenticated %}
+    <div class="box">
+        <h2 id="welcome-line" data-username="{{ request.user.username }}"></h2>
+        <p id="subtext-text"></p>
+    </div>
+
+{% else %}
+    <div class="landing">
+
+        <h1 id="line1">Welcome to MiniTalk!</h1>
+        <p id="line2">Your private social space is starting...</p>
+        <p id="line3">Join me! Spend a great time here!</p>
+
+        <div id="line4" class="subtext">Already have an account?</div>
+        <a id="line5" href="{% url 'login' %}" class="btn">Log In</a>
+
+        <div id="line6" class="subtext">Don't have an account yet?</div>
+        <a id="line7" href="{% url 'register' %}" class="btn">Sign Up</a>
+    
+    </div>
+{% endif %}
+
+{% endblock %}

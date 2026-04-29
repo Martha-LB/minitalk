@@ -1,349 +1,79 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>{{ profile_user.username }} - MiniTalk</title>
+{% extends "base.html" %}
 
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background-color: #f0f2f5;
-        }
+{% block content %}
 
-        .navbar {
-            background-color: #333;
-            color: white;
-            height: 70px;
-            padding: 0 60px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 8px 12px rgba(0,0,0,0.25);
-        }
+<div class="container">
 
-        .nav-left {
-            display: flex;
-            align-items: center;
-            gap: 36px;
-        }
+    <a href="{% url 'public_post' %}" class="back-link">← Back to Explore</a>
 
-        .logo a {
-            font-size: 26px;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            color: white;
-            text-decoration: none;
-        }
+    <div class="profile-card">
+        <div class="profile-top">
 
-        .logo a:visited {
-            color: white;
-        }
+            <div class="profile-left">
+                {% if profile.avatar %}
+                    <img src="{{ profile.avatar.url }}" alt="avatar" class="avatar-large">
+                {% else %}
+                    <img src="/media/avatars/default.png" alt="avatar" class="avatar-large">
+                {% endif %}
 
-        .nav-links {
-            display: flex;
-            align-items: center;
-            gap: 22px;
-        }
-
-        .nav-links a {
-            color: white;
-            text-decoration: none;
-            font-size: 18px;
-        }
-
-        .nav-links a:visited {
-            color: white;
-        }
-
-        .nav-links a:hover {
-            text-decoration: underline;
-        }
-
-        .nav-right {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .logout-link {
-            color: #ddd;
-            text-decoration: none;
-            font-size: 14px;
-        }
-
-        .logout-link:visited {
-            color: #ddd;
-        }
-
-        .logout-link:hover {
-            color: white;
-            text-decoration: underline;
-        }
-
-        .container {
-            width: 820px;
-            max-width: 90%;
-            margin: 50px auto;
-        }
-
-        .profile-card {
-            background: white;
-            border-radius: 16px;
-            padding: 28px 30px;
-            margin-bottom: 28px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
-        }
-
-        .profile-top {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 18px;
-        }
-
-        .profile-left {
-            display: flex;
-            align-items: center;
-            gap: 18px;
-        }
-
-        .avatar-large {
-            width: 88px;
-            height: 88px;
-            border-radius: 50%;
-            object-fit: cover;
-            display: block;
-            background: #ccc;
-        }
-
-        .avatar-small {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            object-fit: cover;
-            display: block;
-            background: #ccc;
-        }
-
-        .profile-text h2 {
-            margin: 0;
-            font-size: 28px;
-            color: #222;
-        }
-
-        .profile-bio {
-            margin-top: 20px;
-            font-size: 15px;
-            color: #333;
-            line-height: 1.6;
-            white-space: pre-wrap;
-        }
-
-        .follow-btn {
-            background: #79abec;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            padding: 10px 18px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        .follow-btn:hover {
-            background: #367eea;
-        }
-
-        .unfollow-btn {
-            background: #eeeeee;
-            color: #333;
-            border: none;
-            border-radius: 10px;
-            padding: 10px 18px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        .unfollow-btn:hover {
-            background: #dddddd;
-        }
-
-        .section-title {
-            font-size: 22px;
-            color: #222;
-            margin: 0 0 18px 0;
-        }
-
-        .post {
-            background: white;
-            padding: 15px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
-        }
-
-        .post-header {
-            font-size: 13px;
-            color: #666;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-        }
-
-        .post-user-info {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .username {
-            font-weight: bold;
-            color: #333;
-            text-decoration: none;
-        }
-
-        .username:visited {
-            color: #333;
-        }
-
-        .dot {
-            margin: 0 6px;
-        }
-
-        .time {
-            font-size: 12px;
-            color: #999;
-        }
-
-        .content {
-            margin: 0;
-            font-size: 15px;
-            margin-left: 35px;
-            color: #222;
-            line-height: 1.6;
-        }
-
-        .empty-box {
-            background: white;
-            padding: 24px;
-            border-radius: 12px;
-            color: #777;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
-        }
-
-        .back-link {
-            display: inline-block;
-            margin-bottom: 18px;
-            color: #666;
-            text-decoration: none;
-            font-size: 14px;
-        }
-
-        .back-link:hover {
-            text-decoration: underline;
-        }
-    </style>
-</head>
-
-<body>
-
-    <div class="navbar">
-        <div class="nav-left">
-            <div class="logo">
-                <a href="{% url 'home' %}">
-                    <strong>MiniTalk</strong>
-                </a>
+                <div class="profile-text">
+                    <h2>{{ profile_user.username }}</h2>
+                </div>
             </div>
 
-            <div class="nav-links">
-                <a href="{% url 'public_post' %}">Explore</a>
-                <a href="{% url 'post' %}">My Journal</a>
-                <a href="{% url 'create_post' %}">New Story</a>
-            </div>
+            {% if request.user.is_authenticated and request.user != profile_user %}
+                {% if is_following %}
+                    <form method="post" action="{% url 'unfollow_user' profile_user.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="unfollow-btn">Unfollow</button>
+                    </form>
+                {% else %}
+                    <form method="post" action="{% url 'follow_user' profile_user.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="follow-btn">Follow</button>
+                    </form>
+                {% endif %}
+            {% endif %}
+
         </div>
 
-        <div class="nav-right">
-            {% if request.user.is_authenticated %}
-                <a href="{% url 'profile' %}" class="logout-link">{{ request.user.username }}</a>
-                <a href="{% url 'logout' %}" class="logout-link">Logout</a>
+        <div class="profile-bio">
+            {% if profile.bio %}
+                {{ profile.bio }}
             {% else %}
-                <a href="{% url 'login' %}" class="logout-link">Login</a>
+                This user has not written anything yet.
             {% endif %}
         </div>
     </div>
 
-    <div class="container">
+    <h2 class="section-title">{{ profile_user.username }}'s Public Posts</h2>
 
-        <a href="{% url 'public_post' %}" class="back-link">← Back to Explore</a>
-
-        <div class="profile-card">
-            <div class="profile-top">
-
-                <div class="profile-left">
+    {% for post in posts %}
+        <div class="post">
+            <div class="post-header">
+                <div class="post-user-info">
                     {% if profile.avatar %}
-                        <img src="{{ profile.avatar.url }}" alt="avatar" class="avatar-large">
+                        <img src="{{ profile.avatar.url }}" alt="avatar" class="avatar-small">
                     {% else %}
-                        <img src="/media/avatars/default.png" alt="avatar" class="avatar-large">
+                        <img src="/media/avatars/default.png" alt="avatar" class="avatar-small">
                     {% endif %}
 
-                    <div class="profile-text">
-                        <h2>{{ profile_user.username }}</h2>
-                    </div>
+                    <span class="username">{{ profile_user.username }}</span>
+                    <span class="dot">·</span>
+                    <span class="time">{{ post.created_at|date:"Y-m-d H:i" }}</span>
                 </div>
-
-                {% if request.user.is_authenticated and request.user != profile_user %}
-                    {% if is_following %}
-                        <form method="post" action="{% url 'unfollow_user' profile_user.id %}">
-                            {% csrf_token %}
-                            <button type="submit" class="unfollow-btn">Unfollow</button>
-                        </form>
-                    {% else %}
-                        <form method="post" action="{% url 'follow_user' profile_user.id %}">
-                            {% csrf_token %}
-                            <button type="submit" class="follow-btn">Follow</button>
-                        </form>
-                    {% endif %}
-                {% endif %}
-
             </div>
 
-            <div class="profile-bio">
-                {% if profile.bio %}
-                    {{ profile.bio }}
-                {% else %}
-                    This user has not written anything yet.
-                {% endif %}
-            </div>
+            <p class="content user-profile-post-content">
+                {{ post.content|linebreaksbr }}
+            </p>
         </div>
+    {% empty %}
+        <div class="empty-box">
+            No public posts yet.
+        </div>
+    {% endfor %}
 
-        <h2 class="section-title">{{ profile_user.username }}'s Public Posts</h2>
+</div>
 
-        {% for post in posts %}
-            <div class="post">
-                <div class="post-header">
-                    <div class="post-user-info">
-                        {% if profile.avatar %}
-                            <img src="{{ profile.avatar.url }}" alt="avatar" class="avatar-small">
-                        {% else %}
-                            <img src="/media/avatars/default.png" alt="avatar" class="avatar-small">
-                        {% endif %}
-                        <span class="username">{{ profile_user.username }}</span>
-                        <span class="dot">·</span>
-                        <span class="time">{{ post.created_at|date:"Y-m-d H:i" }}</span>
-                    </div>
-                </div>
-
-                <p class="content">
-                    {{ post.content|linebreaksbr }}
-                </p>
-            </div>
-        {% empty %}
-            <div class="empty-box">
-                No public posts yet.
-            </div>
-        {% endfor %}
-
-    </div>
-
-</body>
-</html>
+{% endblock %}

@@ -1,474 +1,157 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>MiniTalk Feed</title>
+{% extends "base.html" %}
 
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background-color: #f0f2f5;
-        }
+{% block content %}
 
-        .navbar {
-            background-color: #333;
-            color: white;
-            height: 70px;
-            padding: 0 60px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+<div class="container">
 
-            box-shadow: 0 8px 12px rgba(0,0,0,0.25);
-        }
+    <h2 class="page-title">
+        {% if mode == "mine" %}
+            My Thoughts
+            <span class="count-text">({{ count }})</span>
+        {% else %}
+            What Others Are Thinking
+        {% endif %}
+    </h2>
 
-        .nav-left {
-            display: flex;
-            align-items: center;
-            gap: 36px;
-        }
-
-        .logo a {
-            font-size: 26px;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            color: white;
-            text-decoration: none;
-        }
-
-        .logo a:visited {
-            color: white;
-        }
-
-        .nav-links {
-            display: flex;
-            align-items: center;
-            gap: 22px;
-        }
-
-        .nav-links a {
-            color: white;
-            text-decoration: none;
-            font-size: 18px;
-        }
-
-        .nav-links a:visited {
-            color: white;
-        }
-
-        .nav-links a:hover {
-            text-decoration: underline;
-        }
-
-        .nav-right {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .user-info {
-            color: #ddd;
-            font-size: 14px;
-        }
-
-        .logout-link {
-            color: #ddd;
-            text-decoration: none;
-            font-size: 14px;
-        }
-
-        .logout-link:visited {
-            color: #ddd;
-        }
-
-        .logout-link:hover {
-            color: white;
-            text-decoration: underline;
-        }
-        
-
-        .container {
-            width: 820px;
-            max-width: 90%;
-            margin: 60px auto;
-        }
-
-        .post {
-            background: white;
-            padding: 15px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
-        }
-
-        .content {
-            margin: 0;
-            font-size: 15px;
-            margin-left: 35px;
-        }
-
-        .post-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 10px;
-        }
-
-        .post-header {
-            font-size: 13px;
-            color: #666;
-            margin-bottom: 15px;
-        }
-
-        .username {
-            font-weight: bold;
-            color: #333;
-            text-decoration: none;
-        }
-
-        .dot {
-            margin: 0 6px;
-        }
-
-        .time {
-            font-size: 12px;
-            color: #999;
-        }
-
-        .post-actions {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            margin-left: auto;
-        }
-
-        .delete-btn {
-            background: none;
-            border: none;
-            color: #888;
-            font-size: 13px;
-            cursor: pointer;
-            padding: 0;
-        }
-
-        .delete-btn:hover {
-            color: #e74c3c;
-        }
-
-        .comment-toggle {
-            background: none;
-            border: none;
-            color: #888;
-            font-size: 13px;
-            cursor: pointer;
-            padding: 0;
-        }
-
-        .comment-toggle:hover {
-            color: #1877f2;
-        }
-
-        .comments {
-            margin-top: 15px;
-            padding-top: 10px;
-            border-top: 1px solid #eee;
-        }
-
-        .comment-box {
-            display: none;
-        }
-
-        .comment {
-            background: #f7f7f7;
-            padding: 8px 10px;
-            border-radius: 8px;
-            margin-bottom: 8px;
-        }
-
-        .comment-time {
-            font-size: 11px;
-            color: #999;
-            margin-top: 4px;
-        }
-
-        .comment-username {
-            font-size: 11px;
-            color: #999;
-            margin-left: 6px;
-        }
-
-        .comment-user-link {
-            color: #999;
-            text-decoration: none;
-        }
-
-        .comment-user-link:visited {
-            color: #999;
-        }
-
-        .comment-user-link:hover {
-            text-decoration: underline;
-            color: #555;
-        }
-
-        .comment-form {
-            display: flex;
-            gap: 8px;
-            margin-top: 10px;
-        }
-
-        .comment-input {
-            flex: 1;
-            padding: 8px 10px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            font-size: 13px;
-        }
-
-        .comment-btn {
-            background: #1877f2;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 8px 14px;
-            cursor: pointer;
-        }
-
-        .comment-btn:hover {
-            background: #0f5ed7;
-        }
-
-        .avatar {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            object-fit: cover;
-            display: block;
-            background: #ccc;
-        }
-        .pagination {
-            margin-top: 20px;
-            display: flex;
-            justify-content: space-between;  /* 左右分开 */
-            align-items: center;
-        }
-
-        .pagination a {
-            display: inline-block;
-            padding: 6px 12px;
-            margin: 0 4px;
-            border-radius: 6px;
-            background: #eee;
-            color: #333;
-            text-decoration: none;
-            font-size: 14px;
-        }
-
-        .pagination a:visited {
-            color: #333;
-        }
-
-        .pagination a:hover {
-            background: #ddd;
-        }
-
-
-    </style>
-</head>
-
-<body>
-
-    <div class="navbar">
-        <div class="nav-left">
-            <div class="logo">
-                <a href="{% url 'home' %}">
-                    <strong>MiniTalk</strong>
-                </a>
-            </div>
-
-            <div class="nav-links">
-                <a href="{% url 'public_post' %}">Explore</a>
-                <a href="{% url 'post' %}">My Journal</a>
-                <a href="{% url 'create_post' %}">New Story</a>
-            </div>
-        </div>
-
-        <div class="nav-right">
-            {% if request.user.is_authenticated %}
-                <a href="{% url 'profile' %}" class="logout-link">{{ request.user.username }}</a>
-                <a href="{% url 'logout' %}" class="logout-link">Logout</a>
-            {% else %}
-                <a href="{% url 'login' %}" class="logout-link">Login</a>
-            {% endif %}
-        </div>
+    <div class="search-area">
+        <form method="get" class="search-form">
+            <input
+                type="text"
+                name="q"
+                value="{{ query }}"
+                placeholder="Search..."
+                class="search-input"
+            >
+            <button type="submit" class="search-btn">
+                Search
+            </button>
+        </form>
     </div>
 
-    <div class="container">
-
-        <h2 style="display:flex; align-items:center; gap:10px;">
-            {% if mode == "mine" %}
-                My Thoughts
-                <span style="font-size:20px; color:#3e3c3c;">
-                    ({{ count }})
-                </span>
-            {% else %}
-                What Others Are Thinking
-            {% endif %}
-        </h2>
-
-        <div style="margin-bottom: 20px;">
-            <form method="get" style="display:flex; gap:10px; align-items:center;">
-                <input
-                    type="text"
-                    name="q"
-                    value="{{ query }}"
-                    placeholder="Search..."
-                    style="
-                        flex:1;
-                        padding:10px 14px;
-                        border:1px solid #ccc;
-                        border-radius:999px;
-                        font-size:14px;
-                        box-sizing:border-box;
-                    "
-                >
-                <button
-                    type="submit"
-                    style="
-                        padding:8px 18px;
-                        border:none;
-                        border-radius:999px;
-                        background:#6c757d;
-                        color:white;
-                        cursor:pointer;
-                        font-size:14px;
-                    "
-                >
-                    Search
-                </button>
-            </form>
-        </div>
-
-        {% if query %}
-            {% if mode == "mine" %}
-                <a href="{% url 'post' %}" style="font-size:14px; color:#666; text-decoration:none;">Clear</a>
-            {% else %}
-                <a href="{% url 'public_post' %}" style="font-size:14px; color:#666; text-decoration:none;">Clear</a>
-            {% endif %}
+    {% if query %}
+        {% if mode == "mine" %}
+            <a href="{% url 'post' %}" class="clear-link">Clear</a>
+        {% else %}
+            <a href="{% url 'public_post' %}" class="clear-link">Clear</a>
         {% endif %}
+    {% endif %}
 
+    {% for post in page_obj %}
+        <div id="post-{{ post.id }}" class="post">
 
-        {% for post in page_obj %}
-            <div id="post-{{ post.id }}" class="post">
+            <div class="post-header">
+                <div class="post-user-info">
 
-                <div class="post-header" style="display:flex; align-items:center;">
-                    <div style="display:flex; align-items:center; gap:8px;">
-
-                        {% if post.user.profile.avatar %}
-                            <img src="{{ post.user.profile.avatar.url }}" class="avatar">
-                        {% else %}
-                            <img src="/media/avatars/default.png" class="avatar">
-                        {% endif %}
-                        {% if post.user.username and post.user.id %}
-                            <a href="{% url 'user_profile' post.user.id %}" class="username">
-                                {{ post.user.username }}
-                            </a>
-                        {% elif post.user %}
-                            <span class="username"> {{ post.user.username }} </span>
-                        {% else %}
-                            <span class="username">Anonymous</span>
-                        {% endif %}
-                        <span class="dot">·</span>
-                        <span class="time">
-                            <span class="post-time" data-time="{{ post.created_at|date:'c' }}"></span>
-                        </span>
-                    </div>
-
-                    {% if mode == "mine" and not post.is_public %}
-                        <span class="time" style="margin-left:auto; opacity:0.7;">
-                            🔒 Private
-                        </span>
+                    {% if post.user.profile.avatar %}
+                        <img src="{{ post.user.profile.avatar.url }}" class="avatar">
+                    {% else %}
+                        <img src="/media/avatars/default.png" class="avatar">
                     {% endif %}
-                    
+
+                    {% if post.user.username and post.user.id %}
+                        <a href="{% url 'user_profile' post.user.id %}" class="username">
+                            {{ post.user.username }}
+                        </a>
+                    {% elif post.user %}
+                        <span class="username">{{ post.user.username }}</span>
+                    {% else %}
+                        <span class="username">Anonymous</span>
+                    {% endif %}
+
+                    <span class="dot">·</span>
+
+                    <span class="time">
+                        <span class="post-time" data-time="{{ post.created_at|date:'c' }}"></span>
+                    </span>
                 </div>
 
-                <p class="content">
-                    {{ post.content|linebreaksbr }}
-                </p>
-
-                <div class="post-footer">
-
-                    <div class="post-actions">
-                        <button type="button" class="comment-toggle" onclick="toggleComments({{ post.id }})">
-                            comment{% if post.comments.count > 0 %} ({{ post.comments.count }}){% endif %}
-                        </button>
-
-                        {% if post.user == request.user %}
-                            <a href="{% url 'edit_post' post.id %}" class="delete-btn" style="text-decoration:none;">edit</a>
-
-                            <form method="post" action="{% url 'delete_post' post.id %}">
-                                {% csrf_token %}
-                                <button type="submit" class="delete-btn">delete</button>
-                            </form>
-                        {% endif%}
-                    </div>
-                </div>
-
-                <div class="comments">
-                    <div id="comment-box-{{ post.id }}" class="comment-box" style="display: none;">
-                        {% for comment in post.comments.all %}
-                            <div class="comment">
-
-                                <div>{{ comment.content|linebreaksbr }}</div>
-
-                                <div class="comment-time" style="display:flex; justify-content:space-between; align-items:center;">
-
-                                    <div>
-                                        <span class="post-time" data-time="{{ post.created_at|date:'c' }}"></span>
-                                        <span class="comment-username">
-                                            {% if comment.user and comment.user.id %}
-                                                <a href="{% url 'user_profile' comment.user.id %}" class="comment-user-link">
-                                                    {{ comment.user.username }}
-                                                </a>
-                                            {% else %}
-                                                Anonymous
-                                            {% endif %}
-                                        </span>
-                                    </div>
-
-                                    {% if comment.user == request.user or comment.post.user == request.user %}
-                                        <form method="post" action="{% url 'delete_comment' comment.id %}">
-                                            {% csrf_token %}
-                                            <button type="submit" class="delete-btn">delete</button>
-                                        </form>
-                                    {% endif %}
-
-                                </div>
-
-                            </div>
-                        {% empty %}
-                            <div class="comment-time">No comments yet.</div>
-                        {% endfor %}
-
-                        <form method="post" action="{% url 'create_comment' post.id %}" class="comment-form">
-                            {% csrf_token %}
-                            <input type="text" name="content" class="comment-input" placeholder="Write a comment...">
-                            <button type="submit" class="comment-btn">Comment</button>
-                        </form>
-                    </div>
-                </div>
-
+                {% if mode == "mine" and not post.is_public %}
+                    <span class="private-label">
+                        🔒 Private
+                    </span>
+                {% endif %}
             </div>
 
+            <p class="content">
+                {{ post.content|linebreaksbr }}
+            </p>
 
-        {% empty %}
-            <p>No posts yet...</p>
-        {% endfor %}
+            <div class="post-footer">
+                <div class="post-actions">
 
-        <div class="pagination">
-            <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                    <button type="button" class="comment-toggle" onclick="toggleComments({{ post.id }})">
+                        comment{% if post.comments.count > 0 %} ({{ post.comments.count }}){% endif %}
+                    </button>
 
+                    {% if post.user == request.user %}
+                        <a href="{% url 'edit_post' post.id %}" class="delete-btn edit-link">edit</a>
+
+                        <form method="post" action="{% url 'delete_post' post.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="delete-btn">delete</button>
+                        </form>
+                    {% endif %}
+
+                </div>
+            </div>
+
+            <div class="comments">
+                <div id="comment-box-{{ post.id }}" class="comment-box">
+
+                    {% for comment in post.comments.all %}
+                        <div class="comment">
+
+                            <div>{{ comment.content|linebreaksbr }}</div>
+
+                            <div class="comment-time comment-meta">
+
+                                <div>
+                                    <span class="post-time" data-time="{{ comment.created_at|date:'c' }}"></span>
+
+                                    <span class="comment-username">
+                                        {% if comment.user and comment.user.id %}
+                                            <a href="{% url 'user_profile' comment.user.id %}" class="comment-user-link">
+                                                {{ comment.user.username }}
+                                            </a>
+                                        {% else %}
+                                            Anonymous
+                                        {% endif %}
+                                    </span>
+                                </div>
+
+                                {% if comment.user == request.user or comment.post.user == request.user %}
+                                    <form method="post" action="{% url 'delete_comment' comment.id %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="delete-btn">delete</button>
+                                    </form>
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+                    {% empty %}
+                        <div class="comment-time">No comments yet.</div>
+                    {% endfor %}
+
+                    <form method="post" action="{% url 'create_comment' post.id %}" class="comment-form">
+                        {% csrf_token %}
+                        <input type="text" name="content" class="comment-input" placeholder="Write a comment...">
+                        <button type="submit" class="comment-btn">Comment</button>
+                    </form>
+
+                </div>
+            </div>
+
+        </div>
+
+    {% empty %}
+        <p>No posts yet...</p>
+    {% endfor %}
+
+    <div class="pagination">
+        <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+
+        <div>
             {% if page_obj.has_previous %}
                 <a href="?page={{ page_obj.previous_page_number }}">Previous</a>
             {% endif %}
@@ -477,55 +160,8 @@
                 <a href="?page={{ page_obj.next_page_number }}">Next</a>
             {% endif %}
         </div>
-
     </div>
 
-    <script>
-        function toggleComments(postId) {
-            const box = document.getElementById(`comment-box-${postId}`);
-            if (box.style.display === "none" || box.style.display === "") {
-                box.style.display = "block";
-            } else {
-                box.style.display = "none";
-            }
-        }
+</div>
 
-        document.addEventListener("DOMContentLoaded", function () {
-            const params = new URLSearchParams(window.location.search);
-            const openCommentId = params.get("open_comment");
-
-            if (openCommentId) {
-                const box = document.getElementById(`comment-box-${openCommentId}`);
-                if (box) {
-                    box.style.display = "block";
-                }
-            }
-        });
-    </script>
-
-
-    <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const timeElements = document.querySelectorAll(".post-time");
-
-        timeElements.forEach(function (el) {
-            const utcTime = el.dataset.time;
-            if (!utcTime) return;
-
-            const date = new Date(utcTime);
-
-            el.textContent = date.toLocaleString([], {
-                year: "numeric",
-                month: "2-digit",
-                day: "2-digit",
-                hour: "2-digit",
-                minute: "2-digit",
-                hour12: false
-            });
-        });
-    });
-    </script>
-
-
-</body>
-</html>
+{% endblock %}

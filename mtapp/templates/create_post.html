@@ -1,311 +1,56 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>MiniTalk Feed</title>
+{% extends "base.html" %}
 
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background-color: #f0f2f5;
-        }
+{% block content %}
 
-        /* 顶部导航栏 */
-        .navbar {
-            background-color: #333;
-            color: white;
-            height: 70px;
-            padding: 0 60px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+<div class="container">
 
-            box-shadow: 0 8px 12px rgba(0,0,0,0.25);
-        }
+    <!-- 发帖 -->
+    <div class="post-box">
+        <form method="post" action="{% url 'create_post' %}">
+            {% csrf_token %}
 
-        .nav-left {
-            display: flex;
-            align-items: center;
-            gap: 36px;
-        }
+            <textarea name="content" placeholder="What's on your mind?" class="post-textarea"></textarea>
 
-        .logo a {
-            font-size: 26px;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            color: white;
-            text-decoration: none;
-        }
-
-        .logo a:visited {
-            color: white;
-        }
-
-        .nav-links {
-            display: flex;
-            align-items: center;
-            gap: 22px;
-        }
-
-        .nav-links a {
-            color: white;
-            text-decoration: none;
-            font-size: 18px;
-        }
-
-        .nav-links a:visited {
-            color: white;
-        }
-
-        .nav-links a:hover {
-            text-decoration: underline;
-        }
-
-        .nav-right {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .user-info {
-            color: #ddd;
-            font-size: 14px;
-        }
-
-        .logout-link {
-            color: #ddd;
-            text-decoration: none;
-            font-size: 14px;
-        }
-
-        .logout-link:visited {
-            color: #ddd;
-        }
-
-        .logout-link:hover {
-            color: white;
-            text-decoration: underline;
-        }
-
-        /* 页面容器 */
-        .container {
-            width: 820px;
-            max-width: 90%;
-            margin: 60px auto;
-        }
-
-        /* 发帖框 */
-        .post-box {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            margin-bottom: 30px;
-        }
-
-        textarea {
-            width: 100%;
-            height: 100px;
-            border-radius: 10px;
-            border: 1px solid #ccc;
-            padding: 12px;
-            font-size: 14px;
-            resize: none;
-            box-sizing: border-box;
-        }
-
-        .btn {
-            margin-top: 12px;
-            padding: 8px 22px;
-            background: #6c757d;   /* 灰色 */
-            color: white;
-            border: none;
-            border-radius: 999px;  /* 椭圆 */
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        .btn:hover {
-            background: #5a6268;
-        }
-
-        /* 帖子 */
-        .post {
-            background: white;
-            padding: 15px;
-            border-radius: 12px;
-            margin-bottom: 15px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
-
-            display: flex;
-            flex-direction: column;
-        }
-
-        .content {
-            margin: 0;
-        }
-
-        /* 底部 */
-        .post-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 10px;
-        }
-
-        .time {
-            font-size: 12px;
-            color: #999;
-        }
-
-        /* delete 样式 */
-        .delete-btn {
-            background: none;
-            border: none;
-            color: #888;
-            font-size: 13px;
-            cursor: pointer;
-            padding: 0;
-        }
-
-        .delete-btn:hover {
-            color: #e74c3c;
-        }
-
-        textarea {
-            width: 100%;
-            min-height: 100px;
-            border-radius: 10px;
-            border: 1px solid #ccc;
-            padding: 12px;
-            font-size: 14px;
-            resize: none;
-            box-sizing: border-box;
-            overflow: hidden;
-        }
-
-    </style>
-</head>
-
-<body>
-
-    <!-- 导航栏 -->
-    <div class="navbar">
-        <div class="nav-left">
-            <div class="logo">
-                <a href="{% url 'home' %}">
-                    <strong>MiniTalk</strong>
-                </a>
+            <div class="post-options">
+                <label>
+                    <input type="checkbox" name="is_public" checked>
+                    Public
+                </label>
             </div>
 
-            <div class="nav-links">
-                <a href="{% url 'public_post' %}">Explore</a>
-                <a href="{% url 'post' %}">My Journal</a>
-                <a href="{% url 'create_post' %}">New Story</a>
+            <div class="post-submit">
+                <button class="btn" type="submit">Post</button>
             </div>
-        </div>
-
-        <div class="nav-right">
-            {% if request.user.is_authenticated %}
-                <a href="{% url 'profile' %}" class="logout-link">{{ request.user.username }}</a>
-                <a href="{% url 'logout' %}" class="logout-link">Logout</a>
-            {% else %}
-                <a href="{% url 'login' %}" class="logout-link">Login</a>
-            {% endif %}
-        </div>
+        </form>
     </div>
 
+    <!-- 帖子列表 -->
+    <p class="section-title">Recent posts:</p>
 
-    <!-- 主体 -->
-    <div class="container">
+    {% for post in posts %}
+        <div class="post">
 
-        <!-- 发帖 -->
-        <div class="post-box">
-            <form method="post" action="{% url 'create_post' %}">
-                {% csrf_token %}
-                <textarea name="content" placeholder="What's on your mind?"></textarea>
+            <p class="content">{{ post.content|linebreaksbr }}</p>
 
-                <!-- 公开 / 私密 -->
-                <div style="margin-top:10px; font-size:14px; color:#555;">
-                    <label>
-                        <input type="checkbox" name="is_public" checked>
-                        Public
-                    </label>
+            <div class="post-footer">
+
+                <div class="time">
+                    <span class="post-time" data-time="{{ post.created_at|date:'c' }}"></span>
                 </div>
 
-                <div style="display:flex; justify-content:flex-end;">
-                    <button class="btn" type="submit">Post</button>
-                </div>
-            </form>
-        </div>
-
-        <!-- 帖子列表 -->
-        <p> Recent posts:</p>
-        {% for post in posts %}
-            
-            <div class="post">
-
-                <p class="content">{{ post.content|linebreaksbr }}</p>
-
-                <div class="post-footer">
-
-                    <div class="time">
-                        <span class="post-time" data-time="{{ post.created_at|date:'c' }}"></span>
-                    </div>
-
-                    <form method="post" action="{% url 'delete_post' post.id %}">
-                        {% csrf_token %}
-                        <button type="submit" class="delete-btn">delete</button>
-                    </form>
-
-                </div>
+                <form method="post" action="{% url 'delete_post' post.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="delete-btn">delete</button>
+                </form>
 
             </div>
-        {% empty %}
-            <p>No posts yet...</p>
-        {% endfor %}
 
-    </div>
-    <script>
-        const textarea = document.querySelector('textarea[name="content"]');
+        </div>
 
-        function autoResize(el) {
-            el.style.height = "auto";
-            el.style.height = el.scrollHeight + "px";
-        }
+    {% empty %}
+        <p>No posts yet...</p>
+    {% endfor %}
 
-        textarea.addEventListener("input", function () {
-            autoResize(this);
-        });
+</div>
 
-        // 页面加载时也执行一次
-        autoResize(textarea);
-    </script>
-
-    <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const timeElements = document.querySelectorAll(".post-time");
-
-        timeElements.forEach(function (el) {
-            const utcTime = el.dataset.time;
-            if (!utcTime) return;
-
-            const date = new Date(utcTime);
-
-            el.textContent = date.toLocaleString([], {
-                year: "numeric",
-                month: "2-digit",
-                day: "2-digit",
-                hour: "2-digit",
-                minute: "2-digit",
-                hour12: false
-            });
-        });
-    });
-    </script>
-
-
-</body>
-
-</html>
+{% endblock %}
