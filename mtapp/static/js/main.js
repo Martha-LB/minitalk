@@ -238,12 +238,34 @@ function deletePost(postId) {
     });
 }
 
+const translationCache = {};
+
 function translatePost(postId) {
     const contentEl = document.getElementById(`content-${postId}`);
-    const text = contentEl.innerText;
-
     const output = document.getElementById(`translation-${postId}`);
+
+    if (!contentEl || !output) return;
+
+    const text = contentEl.innerText.trim();
+
+    if (!text) return;
+
+    if (output.dataset.visible === "true") {
+        output.style.display = "none";
+        output.dataset.visible = "false";
+        return;
+    }
+
+    if (translationCache[postId]) {
+        output.innerText = translationCache[postId];
+        output.style.display = "block";
+        output.dataset.visible = "true";
+        return;
+    }
+
     output.innerText = "Translating...";
+    output.style.display = "block";
+    output.dataset.visible = "true";
 
     fetch("/api/translate/", {
         method: "POST",
@@ -260,6 +282,11 @@ function translatePost(postId) {
             return;
         }
 
+        translationCache[postId] = data.result;
         output.innerText = data.result;
+    })
+    .catch(error => {
+        output.innerText = "Translation failed.";
+        console.error(error);
     });
 }

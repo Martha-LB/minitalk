@@ -341,7 +341,7 @@ def translate_api(request):
         If it is Chinese, translate to English and German.
         If it is English, translate to Chinese and German.
         If it is German, translate to Chinese and English.
-        Only return the translation.\n\n
+        Only return the translation.
         
         {text}
         """
