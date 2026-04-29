@@ -110,3 +110,156 @@ document.addEventListener("DOMContentLoaded", function () {
         autoResize(textarea);
     }
 });
+
+function getCSRFToken() {
+    return document.cookie
+        .split("; ")
+        .find(row => row.startsWith("csrftoken="))
+        ?.split("=")[1];
+}
+
+function submitComment(postId) {
+    const input = document.getElementById(`input-${postId}`);
+
+    if (!input) {
+        console.log("input not found");
+        return;
+    }
+
+    const content = input.value.trim();
+
+    console.log("submit comment", postId);
+    console.log("content:", content);
+
+    if (!content) {
+        console.log("empty content");
+        return;
+    }
+
+
+    fetch(`/api/comment/${postId}/`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "X-CSRFToken": getCSRFToken()
+        },
+        body: `content=${encodeURIComponent(content)}`
+    })
+    .then(res => res.json())
+    .then(data => {
+        console.log("response:", data);
+
+        if (data.error) {
+            alert(data.error);
+            return;
+        }
+
+        const box = document.getElementById(`comment-box-${postId}`);
+        const form = box.querySelector(".comment-form");
+
+        const newComment = document.createElement("div");
+        newComment.className = "comment";
+
+        newComment.innerHTML = `
+            <div>${data.content}</div>
+            <div class="comment-time comment-meta">
+                <div>
+                    <span>${new Date(data.created_at).toLocaleString([], {
+                        year: "numeric",
+                        month: "2-digit",
+                        day: "2-digit",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        hour12: false
+                    })}</span>
+                    <span class="comment-username">${data.username}</span>
+                </div>
+                <form method="post" action="${data.delete_url}">
+                    <input type="hidden" name="csrfmiddlewaretoken" value="${getCSRFToken()}">
+                    <button type="submit" class="delete-btn">delete</button>
+                </form>
+            </div>
+    `   ;
+
+        box.insertBefore(newComment, form);
+
+        input.value = "";
+        box.style.display = "block";
+    });
+}
+
+function deleteComment(commentId) {
+    const ok = confirm("Delete this comment?");
+
+    if (!ok) return;
+
+    fetch(`/api/comment/${commentId}/delete/`, {
+        method: "POST",
+        headers: {
+            "X-CSRFToken": getCSRFToken()
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.error) {
+            alert(data.error);
+            return;
+        }
+
+        const comment = document.getElementById(`comment-${commentId}`);
+        if (comment) {
+            comment.remove();
+        }
+    });
+}
+
+
+function deletePost(postId) {
+    const ok = confirm("Delete this post?");
+    if (!ok) return;
+
+    fetch(`/api/post/${postId}/delete/`, {
+        method: "POST",
+        headers: {
+            "X-CSRFToken": getCSRFToken()
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.error) {
+            alert(data.error);
+            return;
+        }
+
+        const post = document.getElementById(`post-${postId}`);
+        if (post) {
+            post.remove();
+        }
+    });
+}
+
+function translatePost(postId) {
+    const contentEl = document.getElementById(`content-${postId}`);
+    const text = contentEl.innerText;
+
+    const output = document.getElementById(`translation-${postId}`);
+    output.innerText = "Translating...";
+
+    fetch("/api/translate/", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "X-CSRFToken": getCSRFToken()
+        },
+        body: `text=${encodeURIComponent(text)}`
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.error) {
+            output.innerText = "Error: " + data.error;
+            return;
+        }
+
+        output.innerText = data.result;
+    });
+}

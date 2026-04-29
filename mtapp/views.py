@@ -7,6 +7,11 @@ from django.db.models import Q
 from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
 from .forms import UserUpdateForm, ProfileUpdateForm
 from django.core.paginator import Paginator
+from django.http import JsonResponse
+from django.urls import reverse
+from openai import OpenAI
+
+client = OpenAI()
 
 
 # Create your views here.
@@ -256,3 +261,93 @@ def unfollow_user(request, user_id):
             following=target_user
         ).delete()
     return redirect("user_profile", user_id=user_id)
+
+@login_required
+def create_comment_api(request, post_id):
+    if request.method != "POST":
+        return JsonResponse({"error": "Invalid request"}, status=400)
+
+    post = get_object_or_404(Post, id=post_id)
+    content = request.POST.get("content", "").strip()
+
+    if not content:
+        return JsonResponse({"error": "Comment cannot be empty"}, status=400)
+
+    comment = Comment.objects.create(
+            post=post,
+            user=request.user,
+            content=content
+    )
+
+    return JsonResponse({
+            "id": comment.id,
+            "content": comment.content,
+            "username": request.user.username,
+            "created_at": comment.created_at.isoformat(),
+            "delete_url": reverse("delete_comment", args=[comment.id]),
+    })
+
+
+@login_required
+def delete_comment_api(request, comment_id):
+    if request.method != "POST":
+        return JsonResponse({"error": "Invalid request"}, status=400)
+
+    comment = get_object_or_404(Comment, id=comment_id)
+
+    if comment.user != request.user and comment.post.user != request.user:
+        return JsonResponse({"error": "Permission denied"}, status=403)
+
+    comment.delete()
+
+    return JsonResponse({
+        "success": True,
+        "comment_id": comment_id
+    })
+
+
+@login_required
+def delete_post_api(request, post_id):
+    if request.method != "POST":
+        return JsonResponse({"error": "Invalid request"}, status=400)
+
+    post = get_object_or_404(Post, id=post_id)
+
+    if post.user != request.user:
+        return JsonResponse({"error": "Permission denied"}, status=403)
+
+    post.delete()
+
+    return JsonResponse({
+        "success": True,
+        "post_id": post_id
+    })
+
+
+@login_required
+def translate_api(request):
+    if request.method != "POST":
+        return JsonResponse({"error": "Invalid request"}, status=400)
+
+    text = request.POST.get("text", "").strip()
+
+    if not text:
+        return JsonResponse({"error": "Text is empty"}, status=400)
+
+    response = client.responses.create(
+        model="gpt-5.4-mini",
+        input=f"""
+        Translate the following text.
+        If it is Chinese, translate to English and German.
+        If it is English, translate to Chinese and German.
+        If it is German, translate to Chinese and English.
+        Only return the translation.\n\n
+        
+        {text}
+        """
+    )
+    print("calling OpenAI...")
+
+    return JsonResponse({
+        "result": response.output_text
+    })

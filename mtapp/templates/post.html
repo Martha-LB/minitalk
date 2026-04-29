@@ -72,9 +72,11 @@
                 {% endif %}
             </div>
 
-            <p class="content">
+            <p class="content" id="content-{{ post.id }}">
                 {{ post.content|linebreaksbr }}
             </p>
+
+            <div id="translation-{{ post.id }}" class="translation"></div>
 
             <div class="post-footer">
                 <div class="post-actions">
@@ -83,13 +85,20 @@
                         comment{% if post.comments.count > 0 %} ({{ post.comments.count }}){% endif %}
                     </button>
 
+                    <button type="button"
+                            class="comment-toggle"
+                            onclick="translatePost({{ post.id }})">
+                        translate
+                    </button>
+
                     {% if post.user == request.user %}
                         <a href="{% url 'edit_post' post.id %}" class="delete-btn edit-link">edit</a>
 
-                        <form method="post" action="{% url 'delete_post' post.id %}">
-                            {% csrf_token %}
-                            <button type="submit" class="delete-btn">delete</button>
-                        </form>
+                        <button type="button"
+                                class="delete-btn"
+                                onclick="deletePost({{ post.id }})">
+                            delete
+                        </button>
                     {% endif %}
 
                 </div>
@@ -99,7 +108,7 @@
                 <div id="comment-box-{{ post.id }}" class="comment-box">
 
                     {% for comment in post.comments.all %}
-                        <div class="comment">
+                        <div class="comment" id="comment-{{ comment.id }}">
 
                             <div>{{ comment.content|linebreaksbr }}</div>
 
@@ -120,10 +129,11 @@
                                 </div>
 
                                 {% if comment.user == request.user or comment.post.user == request.user %}
-                                    <form method="post" action="{% url 'delete_comment' comment.id %}">
-                                        {% csrf_token %}
-                                        <button type="submit" class="delete-btn">delete</button>
-                                    </form>
+                                    <button type="button"
+                                            class="delete-btn"
+                                            onclick="deleteComment({{ comment.id }})">
+                                        delete
+                                    </button>
                                 {% endif %}
 
                             </div>
@@ -133,11 +143,15 @@
                         <div class="comment-time">No comments yet.</div>
                     {% endfor %}
 
-                    <form method="post" action="{% url 'create_comment' post.id %}" class="comment-form">
-                        {% csrf_token %}
-                        <input type="text" name="content" class="comment-input" placeholder="Write a comment...">
-                        <button type="submit" class="comment-btn">Comment</button>
-                    </form>
+                    <div class="comment-form">
+                        <input type="text" id="input-{{ post.id }}" class="comment-input" placeholder="Write a comment...">
+
+                        <button type="button"
+                                class="comment-btn"
+                                onclick="submitComment({{ post.id }})">
+                            Comment
+                        </button>
+                    </div>
 
                 </div>
             </div>

@@ -17,4 +17,8 @@ urlpatterns = [
     path("user/<int:user_id>/", views.user_profile_view, name="user_profile"),
     path("follow/<int:user_id>/", views.follow_user, name="follow_user"),
     path("unfollow/<int:user_id>/", views.unfollow_user, name="unfollow_user"),
+    path("api/comment/<int:post_id>/", views.create_comment_api, name="create_comment_api"),
+    path("api/comment/<int:comment_id>/delete/", views.delete_comment_api, name="delete_comment_api"),
+    path("api/post/<int:post_id>/delete/", views.delete_post_api, name="delete_post_api"),
+    path("api/translate/", views.translate_api, name="translate_api"),
 ]
