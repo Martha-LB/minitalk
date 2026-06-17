@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 # everytime you change your model, you need to migrate
 
 
-# Create your models here.
+# Create models here.
 class Post(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     content = models.TextField()

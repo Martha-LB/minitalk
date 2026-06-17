@@ -2,10 +2,10 @@
 
 MiniTalk is a lightweight social journaling web app where users can share thoughts, interact with others, and explore public posts.
 
-
 ## Features
 
 - User authentication (login / register / logout)
+- New accounts require admin approval before login
 - Create and manage posts (public / private)
 - Explore public posts from other users
 - Comment system (AJAX, real-time update)
@@ -38,36 +38,10 @@ MiniTalk is a lightweight social journaling web app where users can share though
 
 ---
 
-## Key Technical Highlights
-
-### 1. Asynchronous Interaction (AJAX)
-- Comments are submitted via `fetch()` without page reload
-- Real-time UI updates improve user experience
-
-### 2. AI Translation Feature
-- Integrated OpenAI API for dynamic text translation
-- Prompt engineering for bilingual translation (EN ↔ ZH)
-
-### 3. Frontend Caching Optimization
-- Translations are cached in browser memory
-- Avoids repeated API calls → reduces cost and latency
-
-### 4. Production Deployment
-- Full deployment with:
-  - Gunicorn
-  - Nginx
-  - Static file handling via `collectstatic`
-- Solved real-world issues like:
-  - static file caching
-  - environment variables for API keys
-  - service configuration (systemd)
-
----
-
 ## Setup (Local)
 
 ```bash
-git clone https://github.com/your-username/minitalk.git
+git clone https://github.com/Martha-LB/minitalk.git
 cd minitalk
 
 python -m venv venv

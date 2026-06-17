@@ -10,8 +10,10 @@ from django.core.paginator import Paginator
 from django.http import JsonResponse
 from django.urls import reverse
 from openai import OpenAI
+from dotenv import load_dotenv
+import os
+load_dotenv()
 
-client = OpenAI()
 
 
 # Create your views here.
@@ -121,8 +123,11 @@ def register_view(request):
             })
 
         user = User.objects.create_user(username=username, password=password1)
-        login(request, user)
-        return redirect("post")
+        user.is_active = False
+        user.save()
+        return render(request, "register.html", {
+            "success": "Your account is pending approval. Please wait."
+        })
 
     return render(request, "register.html")
 
@@ -134,6 +139,15 @@ def login_view(request):
 
         user = authenticate(request, username=username, password=password)
         if user is None:
+            # check
+            try:
+                existing_user = User.objects.get(username=username)
+                if not existing_user.is_active:
+                    return render(request, "login.html", {
+                        "error": "Your account is pending approval. Please wait."
+                    })
+            except User.DoesNotExist:
+                pass
             return render(request, "login.html", {
                 "error": "Invalid username or password."
             })
@@ -231,10 +245,14 @@ def user_profile_view(request, user_id):
             following=user_obj
         ).exists()
 
+    paginator = Paginator(posts, 20)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     return render(request, "user_profile.html", {
         "profile_user": user_obj,
         "profile": profile,
-        "posts": posts,
+        "page_obj": page_obj,
         "is_following": is_following,
     })
 
@@ -334,20 +352,23 @@ def translate_api(request):
     if not text:
         return JsonResponse({"error": "Text is empty"}, status=400)
 
-    response = client.responses.create(
-        model="gpt-5.4-mini",
-        input=f"""
-        Translate the following text.
-        If it is Chinese, translate to English and German.
-        If it is English, translate to Chinese and German.
-        If it is German, translate to Chinese and English.
-        Only return the translation.
+
+    client = OpenAI()
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[
+            {"role": "user", "content": f"""
+            Translate the following text.
+            If it is Chinese, translate to English and German.
+            If it is English, translate to Chinese and German.
+            If it is German, translate to Chinese and English.
+            Only return the translation.
         
-        {text}
-        """
+            {text}
+            """}
+        ]
     )
-    print("calling OpenAI...")
 
     return JsonResponse({
-        "result": response.output_text
+        "result": response.choices[0].message.content
     })

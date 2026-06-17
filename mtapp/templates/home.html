@@ -9,18 +9,58 @@
     </div>
 
 {% else %}
-    <div class="landing">
+    <div class="hero">
+        <div class="hero-left">
+            <h1>Your private social space</h1>
+            <p>Share thoughts, explore public posts, and connect with others — all in one quiet corner of the internet.</p>
+            <div class="hero-btns">
+                <a href="{% url 'register' %}" class="btn-primary">Sign up</a>
+                <a href="{% url 'login' %}" class="btn-secondary">Log in</a>
+            </div>
+        </div>
 
-        <h1 id="line1">Welcome to MiniTalk!</h1>
-        <p id="line2">Your private social space is starting...</p>
-        <p id="line3">Join me! Spend a great time here!</p>
+        <div class="hero-right">
 
-        <div id="line4" class="subtext">Already have an account?</div>
-        <a id="line5" href="{% url 'login' %}" class="btn">Log In</a>
+            <div class="mock-post">
+                <div class="mock-post-header">
+                    <div class="mock-avatar">A</div>
+                    <span class="mock-name">alice</span>
+                    <span class="mock-time">2 min ago</span>
+                </div>
+                <p class="mock-content">今天的咖啡特别好喝，我喜欢这个咖啡机。</p>
+                <p class="mock-translate">EN: Today's coffee was especially good. I feel like I really like this coffee machine.</p>
+            </div>
 
-        <div id="line6" class="subtext">Don't have an account yet?</div>
-        <a id="line7" href="{% url 'register' %}" class="btn">Sign Up</a>
-    
+            <div class="mock-post">
+                <div class="mock-post-header">
+                    <div class="mock-avatar">C</div>
+                    <span class="mock-name">carol</span>
+                    <span class="mock-time">1 hr ago</span>
+                </div>
+                <p class="mock-content">Finished reading a great book. Highly recommend it.</p>
+            </div>
+
+            <div class="mock-post">
+                <div class="mock-post-header">
+                    <div class="mock-avatar">E</div>
+                    <span class="mock-name">emma</span>
+                    <span class="mock-time">3 hr ago</span>
+                </div>
+                <p class="mock-content">The sunset today was absolutely stunning.</p>
+            </div>
+
+            <div class="mock-post">
+                <div class="mock-post-header">
+                    <div class="mock-avatar">C</div>
+                    <span class="mock-name">carol</span>
+                    <span class="mock-time">1 hr ago</span>
+                </div>
+                <p class="mock-content">Ich habe heute doch eine schönen Tag.</p>
+                <p class="mock-translate">EN: I have a really beautiful day.</p>
+
+            </div>
+
+        </div>
     </div>
 {% endif %}
 

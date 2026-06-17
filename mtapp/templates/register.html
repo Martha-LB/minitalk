@@ -4,29 +4,35 @@
 
 {% block content %}
 
-<div class="login-box">  <!-- 👈 这里直接复用 login-box -->
+<div class="login-box">
     <h2>Create Account</h2>
 
-    {% if form.errors %}
-        <div class="error">
-            Please fix the errors below
+    {% if success %}
+        <p style="color: green;">{{ success }}</p>
+    {% else %}
+        {% if form.errors %}
+            <div class="error">
+                Please fix the errors below
+            </div>
+        {% endif %}
+
+        {% if error %}
+            <p style="color: red;">{{ error }}</p>
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+            <input type="text" name="username" placeholder="Username" required class="form-input">
+            <input type="password" name="password1" placeholder="Password" required class="form-input">
+            <input type="password" name="password2" placeholder="Confirm Password" required class="form-input">
+            <button type="submit" class="auth-btn">Sign Up</button>
+        </form>
+
+        <div class="extra">
+            Already have an account?
+            <a href="{% url 'login' %}">Log in</a>
         </div>
     {% endif %}
-
-    <form method="post">
-        {% csrf_token %}
-
-        <input type="text" name="username" placeholder="Username" required class="form-input">
-        <input type="password" name="password1" placeholder="Password" required class="form-input">
-        <input type="password" name="password2" placeholder="Confirm Password" required class="form-input">
-
-        <button type="submit" class="auth-btn">Sign Up</button>
-    </form>
-
-    <div class="extra">
-        Already have an account?
-        <a href="{% url 'login' %}">Log in</a>
-    </div>
 </div>
 
 {% endblock %}
